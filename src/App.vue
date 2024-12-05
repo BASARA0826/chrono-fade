@@ -11,7 +11,12 @@
       <v-divider></v-divider>
 
       <v-list>
-        <v-list-item v-for="[icon, text] in links" :key="icon" link>
+        <v-list-item
+          v-for="[icon, text, to] in links"
+          :key="icon"
+          :to="to"
+          link
+        >
           <v-list-item-icon>
             <v-icon>{{ icon }}</v-icon>
           </v-list-item-icon>
@@ -30,11 +35,11 @@ export default {
   data: () => ({
     drawer: null,
     links: [
-      ["mdi-home", "タスク一覧"],
-      ["mdi-list-box-outline", "完了タスク一覧"],
-      ["mdi-pencil-outline", "タスク作成"],
-      ["mdi-account-edit-outline", "アカウント設定"],
-      ["mdi-logout", "ログアウト"],
+      ["mdi-home", "タスク一覧", "/"],
+      ["mdi-list-box-outline", "完了タスク一覧", "/"],
+      ["mdi-pencil-outline", "タスク作成", "/about"],
+      ["mdi-account-edit-outline", "アカウント設定", "/about"],
+      ["mdi-logout", "ログアウト", "/about"],
     ],
   }),
 };
