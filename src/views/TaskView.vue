@@ -1,7 +1,7 @@
 <template>
   <v-app id="inspire">
-    <v-app-bar app shrink-on-scroll>
-      <v-toolbar-title>ChronoFade</v-toolbar-title>
+    <v-app-bar app hide-on-scroll prominent>
+      <v-toolbar-title class="siteTitle">ChronoFade</v-toolbar-title>
 
       <v-spacer></v-spacer>
     </v-app-bar>
@@ -25,3 +25,13 @@ export default {
   //
 };
 </script>
+
+<style>
+.siteTitle {
+  font-family: "Caveat", cursive;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 80px !important;
+  width: 100%;
+}
+</style>
