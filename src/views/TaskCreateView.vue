@@ -63,7 +63,12 @@
           <!-- 作成ボタン -->
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" dark @click="createTask">
+            <v-btn
+              color="primary"
+              type="submit"
+              :disabled="invalid"
+              @click="createTask"
+            >
               <v-icon left>mdi-plus</v-icon>
               作成
             </v-btn>
@@ -82,6 +87,15 @@ export default {
     deadline: "", // タスクの期限
     menu: false, // 日付選択メニューの状態
   }),
+  computed: {
+    invalid() {
+      console.log("invalid call", this.title, this.content, this.deadline);
+      if (!this.title || !this.content || !this.deadline) {
+        return true;
+      }
+      return false;
+    },
+  },
   methods: {
     createTask() {
       // 作成ボタンの仮の挙動

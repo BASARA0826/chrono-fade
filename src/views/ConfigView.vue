@@ -71,8 +71,12 @@
           <!-- ボタン -->
           <v-divider></v-divider>
           <v-card-actions>
-            <v-btn color="success" @click="saveChanges">変更保存</v-btn>
-            <v-btn color="error" @click="discardChanges">変更破棄</v-btn>
+            <v-btn color="success" type="submit" @click="saveChanges"
+              >変更保存</v-btn
+            >
+            <v-btn color="error" :disabled="inValid" @click="discardChanges"
+              >変更破棄</v-btn
+            >
           </v-card-actions>
         </v-card>
       </v-container>
@@ -82,13 +86,34 @@
 
 <script>
 export default {
+  created() {
+    // 初期値を保持するために、コンポーネント作成時に保存
+    this.initialUsername = this.username;
+    this.initialPassword = this.password;
+    this.initialFeatureEnabled = this.featureEnabled;
+  },
   data: () => ({
     username: "", // ユーザー名
     password: "", // 新しいパスワード
     confirmPassword: "", // パスワード確認用
     showPassword: false, // パスワードの表示/非表示切り替え
     featureEnabled: true, // 機能の有効/無効
+    initialUsername: "", // 初期値を保存
+    initialPassword: "", // 初期値を保存
+    initialFeatureEnabled: true, // 初期値を保存
   }),
+  computed: {
+    inValid() {
+      if (
+        this.username !== this.initialUsername ||
+        this.password !== this.initialPassword ||
+        this.featureEnabled !== this.initialFeatureEnabled
+      ) {
+        return false;
+      }
+      return true;
+    },
+  },
   methods: {
     togglePasswordVisibility() {
       this.showPassword = !this.showPassword;
@@ -101,6 +126,11 @@ export default {
     },
     discardChanges() {
       alert("変更を破棄しました！");
+      this.username = "";
+      this.password = "";
+      this.confirmPassword = "";
+      this.showPassword = false;
+      this.featureEnabled = true;
     },
   },
 };
