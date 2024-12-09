@@ -38,6 +38,13 @@
 
 <script>
 export default {
+  created() {
+    this.task_id = this.$route.query.task_id;
+    console.log("task_id", this.task_id);
+  },
+  data: () => ({
+    task_id: "",
+  }),
   methods: {
     completeTask() {
       // 完了処理のロジックを後で追加
