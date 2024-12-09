@@ -37,7 +37,7 @@ export default {
     links: [
       ["mdi-home", "タスク一覧", "/"],
       ["mdi-list-box-outline", "完了タスク一覧", "/"],
-      ["mdi-pencil-outline", "タスク作成", "/about"],
+      ["mdi-pencil-outline", "タスク作成", "/create"],
       ["mdi-account-edit-outline", "アカウント設定", "/about"],
       ["mdi-logout", "ログアウト", "/about"],
     ],
