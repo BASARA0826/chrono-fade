@@ -5,7 +5,7 @@
       <v-sheet color="grey lighten-4" class="pa-4">
         <v-avatar class="mb-4" color="grey darken-1" size="64"></v-avatar>
 
-        <div class="username">john@vuetifyjs.com</div>
+        <div class="username">HAL就職作品</div>
       </v-sheet>
 
       <v-divider></v-divider>
