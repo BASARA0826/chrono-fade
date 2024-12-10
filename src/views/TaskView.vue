@@ -9,12 +9,16 @@
     <v-main>
       <v-container>
         <v-row>
-          <v-col v-for="n in 24" :key="n" cols="4">
-            <router-link :to="{ path: '/taskDetail', query: { task_id: n } }">
+          <v-col v-for="(data, index) in tasks" :key="index" cols="4">
+            <router-link
+              :to="{ path: '/taskDetail', query: { task_id: data.task_id } }"
+            >
               <v-card height="200" class="pa-4 card-container">
-                <v-card-title class="task-title"> タスクタイトル </v-card-title>
+                <v-card-title class="task-title">
+                  {{ data.title }}
+                </v-card-title>
                 <v-card-subtitle class="task-deadline">
-                  期限: 2024/12/24
+                  {{ data.deadline }}
                 </v-card-subtitle>
               </v-card>
             </router-link>
@@ -26,8 +30,22 @@
 </template>
 
 <script>
+import firebase from "@/firebase/firebase";
+
 export default {
-  //
+  async created() {
+    const taskRef = firebase.firestore().collection("task");
+    const snapshot = await taskRef.get();
+
+    snapshot.forEach((doc) => {
+      console.log(doc.data());
+      this.tasks.push(doc.data());
+    });
+  },
+  data: () => ({
+    // task_id,title, content, deadlineの4項目
+    tasks: [],
+  }),
 };
 </script>
 
