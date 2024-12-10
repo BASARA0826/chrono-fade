@@ -12,15 +12,21 @@
       <v-container>
         <v-card class="pa-4" outlined>
           <!-- タスクのタイトル -->
-          <v-card-title class="title"> タスクのタイトル </v-card-title>
+          <v-card-title class="title">
+            {{ task.title }}
+          </v-card-title>
 
           <!-- タスクの内容 -->
           <v-card-text>
-            <p>これはタスクの内容です。詳細情報がここに表示されます。</p>
+            <p>
+              {{ task.content }}
+            </p>
           </v-card-text>
 
           <!-- タスクの期限 -->
-          <v-card-subtitle> 期限: 2024年12月15日 </v-card-subtitle>
+          <v-card-subtitle>
+            {{ task.deadline }}
+          </v-card-subtitle>
 
           <!-- 完了ボタン -->
           <v-card-actions>
@@ -37,13 +43,31 @@
 </template>
 
 <script>
+import firebase from "@/firebase/firebase";
+
 export default {
-  created() {
+  async created() {
     this.task_id = this.$route.query.task_id;
-    console.log("task_id", this.task_id);
+
+    if (this.task_id) {
+      const taskRef = firebase.firestore().collection("task");
+      // 取得したtask_idと同じ値をフィールド内のtask_idにもつドキュメンテーションを取得
+      const snapshot = await taskRef.where("task_id", "==", this.task_id).get();
+      if (!snapshot.empty) {
+        const doc = snapshot.docs[0];
+        this.task = doc.data();
+      } else {
+        console.error("タスクが存在しません");
+      }
+    }
   },
   data: () => ({
     task_id: "",
+    task: {
+      title: "",
+      content: "",
+      deadline: "",
+    },
   }),
   methods: {
     completeTask() {
