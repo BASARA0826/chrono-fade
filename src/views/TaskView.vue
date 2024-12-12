@@ -1,5 +1,6 @@
 <template>
   <v-app id="inspire">
+    <Sidebar />
     <v-app-bar app hide-on-scroll prominent>
       <v-toolbar-title class="siteTitle">ChronoFade</v-toolbar-title>
 
@@ -30,9 +31,13 @@
 </template>
 
 <script>
+import Sidebar from "@/components/layouts/Sidebar.vue";
 import firebase from "@/firebase/firebase";
 
 export default {
+  components: {
+    Sidebar,
+  },
   async created() {
     const taskRef = firebase.firestore().collection("task");
     const snapshot = await taskRef.get();

@@ -1,5 +1,6 @@
 <template>
   <v-app id="task-detail">
+    <Sidebar />
     <v-app-bar app color="primary" dark>
       <!-- 戻るボタン -->
       <v-btn icon @click="$router.go(-1)">
@@ -43,9 +44,13 @@
 </template>
 
 <script>
+import Sidebar from "@/components/layouts/Sidebar.vue";
 import firebase from "@/firebase/firebase";
 
 export default {
+  components: {
+    Sidebar,
+  },
   async created() {
     this.task_id = this.$route.query.task_id;
 
