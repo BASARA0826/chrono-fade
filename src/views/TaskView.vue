@@ -15,10 +15,10 @@
               :to="{ path: '/taskDetail', query: { task_id: data.task_id } }"
             >
               <v-card height="200" class="pa-4 card-container">
-                <v-card-title class="task-title">
+                <v-card-title class="task-view-title">
                   {{ data.title }}
                 </v-card-title>
-                <v-card-subtitle class="task-deadline">
+                <v-card-subtitle class="task-view-deadline">
                   {{ data.deadline }}
                 </v-card-subtitle>
               </v-card>
@@ -64,7 +64,7 @@ export default {
 }
 
 /* タスクタイトル */
-.task-title {
+.task-view-title {
   font-weight: bold;
   font-size: 20px;
   margin-bottom: 24px;
@@ -77,7 +77,7 @@ export default {
 }
 
 /* タスク期限 */
-.task-deadline {
+.task-view-deadline {
   color: grey;
   font-size: 18px;
   position: absolute;
