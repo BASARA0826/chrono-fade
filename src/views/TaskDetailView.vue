@@ -11,21 +11,21 @@
 
     <v-main>
       <v-container>
-        <v-card class="pa-4" outlined>
+        <v-card class="pa-4 task-detail-view-card" outlined>
           <!-- タスクのタイトル -->
-          <v-card-title class="title">
+          <v-card-title class="task-detail-view-title">
             {{ task.title }}
           </v-card-title>
 
           <!-- タスクの内容 -->
-          <v-card-text>
+          <v-card-text class="task-detail-view-content">
             <p>
               {{ task.content }}
             </p>
           </v-card-text>
 
           <!-- タスクの期限 -->
-          <v-card-subtitle>
+          <v-card-subtitle class="task-detail-view-deadline">
             {{ task.deadline }}
           </v-card-subtitle>
 
@@ -84,8 +84,29 @@ export default {
 </script>
 
 <style>
-.title {
-  font-size: 24px;
+.task-detail-view-card {
+  position: relative;
+  margin: 0 auto;
+}
+
+.task-detail-view-title {
+  font-size: 28px;
   font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.task-detail-view-content {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+.task-detail-view-deadline {
+  font-size: 20px;
+  position: absolute;
+  bottom: 15px;
+  right: 120px;
 }
 </style>
