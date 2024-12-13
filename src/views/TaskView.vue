@@ -19,7 +19,7 @@
                   {{ data.title }}
                 </v-card-title>
                 <v-card-subtitle class="task-view-deadline">
-                  {{ data.deadline }}
+                  {{ data.selectDate }} {{ data.selectTime }}
                 </v-card-subtitle>
               </v-card>
             </router-link>
@@ -48,7 +48,7 @@ export default {
     });
   },
   data: () => ({
-    // task_id,title, content, deadlineの4項目
+    // task_id, title, content, selectDate, selectTimeの5項目
     tasks: [],
   }),
 };

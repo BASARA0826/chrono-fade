@@ -53,10 +53,22 @@
                   dense
                 ></v-text-field>
               </template>
-              <v-date-picker
-                v-model="deadline"
-                @input="menu = false"
-              ></v-date-picker>
+              <v-card>
+                <v-date-picker
+                  class="task-create-view-selectDate"
+                  v-model="selectDate"
+                  show-adjacent-months
+                ></v-date-picker>
+                <v-time-picker
+                  class="task-create-view-selectTime"
+                  v-model="selectTime"
+                  scrollable
+                ></v-time-picker>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn text color="primary" @click="saveDeadline">OK</v-btn>
+                </v-card-actions>
+              </v-card>
             </v-menu>
           </v-card-subtitle>
 
@@ -84,7 +96,9 @@ export default {
   data: () => ({
     title: "", // タスクのタイトル
     content: "", // タスクの内容
-    deadline: "", // タスクの期限
+    deadline: "", // タスクの期限(最終保存用)
+    selectDate: "", // 日付
+    selectTime: "", // 時間
     menu: false, // 日付選択メニューの状態
   }),
   computed: {
@@ -97,6 +111,15 @@ export default {
     },
   },
   methods: {
+    saveDeadline() {
+      if (this.selectDate && this.selectTime) {
+        // 日付と時間を結合
+        this.deadline = `${this.selectDate} ${this.selectTime}`;
+        this.menu = false; // メニューを閉じる
+      } else {
+        alert("日付と時間を選択してください！");
+      }
+    },
     createTask() {
       // 作成ボタンの仮の挙動
       alert(
@@ -108,4 +131,17 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.task-create-view-selectDate .v-picker__title {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.task-create-view-selectTime .v-picker__title {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
