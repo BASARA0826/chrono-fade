@@ -26,7 +26,7 @@
 
           <!-- タスクの期限 -->
           <v-card-subtitle class="task-detail-view-deadline">
-            {{ task.deadline }}
+            {{ task.selectDate }} {{ task.selectTime }}
           </v-card-subtitle>
 
           <!-- 完了ボタン -->
@@ -71,7 +71,8 @@ export default {
     task: {
       title: "",
       content: "",
-      deadline: "",
+      selectDate: "",
+      selectTime: "",
     },
   }),
   methods: {
