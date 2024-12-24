@@ -28,7 +28,11 @@
             required
           ></v-text-field>
 
-          <v-btn color="success" class="login-btn" :disabled="isValid"
+          <v-btn
+            color="success"
+            class="login-btn"
+            @click="submit"
+            :disabled="isValid"
             >SIGN UP</v-btn
           >
 
@@ -40,6 +44,8 @@
 </template>
 
 <script>
+import firebase from "@/firebase/firebase";
+
 export default {
   data: () => ({
     valid: true,
@@ -58,6 +64,21 @@ export default {
   computed: {
     isValid() {
       return !this.valid;
+    },
+  },
+  methods: {
+    submit() {
+      firebase
+        .auth()
+        .createUserWithEmailAndPassword(this.email, this.password)
+        .then(async (result) => {
+          console.log("success", result);
+          await result.user.updateProfile({ displayName: this.name });
+          console.log("updateProfile", result.user);
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
     },
   },
 };
