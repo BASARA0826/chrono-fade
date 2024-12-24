@@ -27,8 +27,8 @@ export default {
   data: () => ({
     drawer: null,
     links: [
-      ["mdi-home", "タスク一覧", "/"],
-      ["mdi-list-box-outline", "完了タスク一覧", "/"],
+      ["mdi-home", "タスク一覧", "/task"],
+      ["mdi-list-box-outline", "完了タスク一覧", "/task"],
       ["mdi-pencil-outline", "タスク作成", "/create"],
       ["mdi-account-edit-outline", "アカウント設定", "/config"],
       ["mdi-logout", "ログアウト", "/"],
