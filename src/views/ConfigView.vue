@@ -35,6 +35,17 @@
             ></v-text-field>
           </v-card-text>
 
+          <!-- Emailの編集 -->
+          <v-divider></v-divider>
+          <v-card-title>E-mail</v-card-title>
+          <v-card-text>
+            <v-text-field
+              label="E-mail"
+              v-model="email"
+              outlined
+            ></v-text-field>
+          </v-card-text>
+
           <!-- パスワードの編集 -->
           <v-divider></v-divider>
           <v-card-title>パスワード</v-card-title>
@@ -89,16 +100,19 @@ export default {
   created() {
     // 初期値を保持するために、コンポーネント作成時に保存
     this.initialUsername = this.username;
+    this.initialEmail = this.email;
     this.initialPassword = this.password;
     this.initialFeatureEnabled = this.featureEnabled;
   },
   data: () => ({
     username: "", // ユーザー名
+    email: "", // メールアドレス
     password: "", // 新しいパスワード
     confirmPassword: "", // パスワード確認用
     showPassword: false, // パスワードの表示/非表示切り替え
     featureEnabled: true, // 機能の有効/無効
     initialUsername: "", // 初期値を保存
+    initialEmail: "", // 初期値を保存
     initialPassword: "", // 初期値を保存
     initialFeatureEnabled: true, // 初期値を保存
   }),
@@ -106,6 +120,7 @@ export default {
     inValid() {
       if (
         this.username !== this.initialUsername ||
+        this.email !== this.initialEmail ||
         this.password !== this.initialPassword ||
         this.featureEnabled !== this.initialFeatureEnabled
       ) {
