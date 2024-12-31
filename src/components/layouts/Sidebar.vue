@@ -15,7 +15,20 @@
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>{{ text }}</v-list-item-title>
+          <v-list-item-title class="sidebar-title">{{
+            text
+          }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-list-item @click="logout">
+        <v-list-item-icon>
+          <v-icon> mdi-logout </v-icon>
+        </v-list-item-icon>
+        <v-list-item-content>
+          <v-list-item-title class="sidebar-title"
+            >ログアウト</v-list-item-title
+          >
         </v-list-item-content>
       </v-list-item>
     </v-list>
@@ -23,6 +36,8 @@
 </template>
 
 <script>
+import firebase from "@/firebase/firebase";
+
 export default {
   data: () => ({
     drawer: null,
@@ -31,9 +46,22 @@ export default {
       ["mdi-list-box-outline", "完了タスク一覧", "/task"],
       ["mdi-pencil-outline", "タスク作成", "/create"],
       ["mdi-account-edit-outline", "アカウント設定", "/config"],
-      ["mdi-logout", "ログアウト", "/"],
     ],
   }),
+  methods: {
+    logout() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          localStorage.message = "ログアウトしました。";
+          this.$router.push("/");
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+  },
 };
 </script>
 
@@ -50,12 +78,7 @@ nav {
   padding: 30px;
 
   a {
-    font-weight: bold;
     color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
   }
 }
 
@@ -70,5 +93,10 @@ nav {
 
 .username {
   padding-top: 10px;
+}
+
+.sidebar-title {
+  font-weight: bold;
+  font-size: 15px;
 }
 </style>
