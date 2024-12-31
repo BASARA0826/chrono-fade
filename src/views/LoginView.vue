@@ -21,11 +21,34 @@
             required
           ></v-text-field>
 
-          <v-btn color="success" class="login-btn" :disabled="isValid"
+          <v-btn
+            color="success"
+            class="login-btn"
+            @click="submit"
+            :disabled="isValid"
             >LOGIN</v-btn
           >
 
           <v-btn>CLEAR</v-btn>
+          <v-alert
+            dense
+            text
+            type="success"
+            class="success-message"
+            v-if="message"
+          >
+            {{ message }}
+          </v-alert>
+
+          <v-alert
+            dense
+            outlined
+            type="error"
+            class="error-message"
+            v-if="errorMessage"
+          >
+            {{ errorMessage }}
+          </v-alert>
         </v-form>
       </v-card>
     </div>
@@ -33,6 +56,8 @@
 </template>
 
 <script>
+import firebase from "@/firebase/firebase";
+
 export default {
   data: () => ({
     valid: true,
@@ -42,10 +67,34 @@ export default {
       (v) => /.+@.+\..+/.test(v) || "不正なメールアドレスです",
     ],
     password: "",
+    message: "",
+    errorMessage: "",
   }),
+  mounted() {
+    if (localStorage.message) {
+      this.message = localStorage.message;
+      localStorage.message = "";
+    }
+  },
   computed: {
     isValid() {
       return !this.valid;
+    },
+  },
+  methods: {
+    submit() {
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.email, this.password)
+        .then((result) => {
+          console.log("success");
+          console.log("user", result.user);
+          this.$router.push("task");
+        })
+        .catch((error) => {
+          console.log("fail", error);
+          this.errorMessage = "ログインに失敗しました。";
+        });
     },
   },
 };
@@ -79,5 +128,9 @@ export default {
 
 .login-btn {
   margin-right: 20px;
+}
+
+.success-message {
+  margin-top: 20px;
 }
 </style>
