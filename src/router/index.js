@@ -6,6 +6,7 @@ import TaskCreateView from "@/views/TaskCreateView.vue";
 import ConfigView from "@/views/ConfigView.vue";
 import LoginView from "@/views/LoginView.vue";
 import SignUpView from "@/views/SignUpView.vue";
+import firebase from "@/firebase/firebase";
 
 Vue.use(VueRouter);
 
@@ -28,6 +29,7 @@ const routes = [
     path: "/task",
     name: "task",
     component: TaskView,
+    meta: { requiresAuth: true },
   },
 
   // タスク詳細
@@ -35,6 +37,7 @@ const routes = [
     path: "/taskDetail",
     name: "taskDetail",
     component: TaskDetailView,
+    meta: { requiresAuth: true },
   },
 
   // タスク作成
@@ -42,6 +45,7 @@ const routes = [
     path: "/create",
     name: "taskCreate",
     component: TaskCreateView,
+    meta: { requiresAuth: true },
   },
 
   // アカウント設定
@@ -49,6 +53,7 @@ const routes = [
     path: "/config",
     name: "config",
     component: ConfigView,
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -56,6 +61,24 @@ const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  if (requiresAuth) {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (!user) {
+        next({
+          path: "/",
+          query: { redirect: to.fullPath },
+        });
+      } else {
+        next();
+      }
+    });
+  } else {
+    next(); // next() を常に呼び出すようにしてください!
+  }
 });
 
 export default router;
