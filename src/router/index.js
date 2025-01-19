@@ -6,7 +6,7 @@ import TaskCreateView from "@/views/TaskCreateView.vue";
 import ConfigView from "@/views/ConfigView.vue";
 import LoginView from "@/views/LoginView.vue";
 import SignUpView from "@/views/SignUpView.vue";
-import firebase from "@/firebase/firebase";
+// import firebase from "@/firebase/firebase";
 
 Vue.use(VueRouter);
 
@@ -66,16 +66,27 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   if (requiresAuth) {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
-        next({
-          path: "/",
-          query: { redirect: to.fullPath },
-        });
-      } else {
-        next();
-      }
-    });
+    const user = sessionStorage.getItem("user");
+    console.log(JSON.parse(user));
+    if (!user) {
+      next({
+        path: "/",
+        query: { redirect: to.fullPath },
+      });
+    } else {
+      next();
+    }
+
+    // firebase.auth().onAuthStateChanged((user) => {
+    //   if (!user) {
+    //     next({
+    //       path: "/",
+    //       query: { redirect: to.fullPath },
+    //     });
+    //   } else {
+    //     next();
+    //   }
+    // });
   } else {
     next(); // next() を常に呼び出すようにしてください!
   }

@@ -3,7 +3,7 @@
     <v-sheet color="grey lighten-4" class="pa-4">
       <v-avatar class="mb-4" color="grey darken-1" size="64"></v-avatar>
 
-      <div class="username">HAL就職作品</div>
+      <div class="username">{{ auth && auth.displayName }}</div>
     </v-sheet>
 
     <v-divider></v-divider>
@@ -39,6 +39,9 @@
 import firebase from "@/firebase/firebase";
 
 export default {
+  mounted() {
+    this.auth = JSON.parse(sessionStorage.getItem("user"));
+  },
   data: () => ({
     drawer: null,
     links: [
@@ -47,6 +50,7 @@ export default {
       ["mdi-pencil-outline", "タスク作成", "/create"],
       ["mdi-account-edit-outline", "アカウント設定", "/config"],
     ],
+    auth: null,
   }),
   methods: {
     logout() {
