@@ -29,7 +29,7 @@
             >LOGIN</v-btn
           >
 
-          <v-btn>CLEAR</v-btn>
+          <v-btn @click="clear">CLEAR</v-btn>
           <v-alert
             dense
             text
@@ -104,6 +104,11 @@ export default {
           console.log("fail", error);
           this.errorMessage = "ログインに失敗しました。";
         });
+    },
+
+    clear() {
+      this.email = "";
+      this.password = "";
     },
   },
 };

@@ -36,7 +36,7 @@
             >SIGN UP</v-btn
           >
 
-          <v-btn>CLEAR</v-btn>
+          <v-btn @click="clear">CLEAR</v-btn>
           <v-alert
             dense
             outlined
@@ -93,6 +93,12 @@ export default {
           console.log("error", error);
           this.errorMessage = "ユーザーの新規登録に失敗しました。";
         });
+    },
+
+    clear() {
+      this.name = "";
+      this.email = "";
+      this.password = "";
     },
   },
 };
