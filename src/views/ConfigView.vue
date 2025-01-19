@@ -14,8 +14,8 @@
           <!-- アカウント画像の変更 -->
           <v-card-title>アカウント画像</v-card-title>
           <v-card-text class="text-center">
-            <v-avatar size="256" color="grey darken-1" class="mb-4">
-              <v-img src="" alt="Account Image"></v-img>
+            <v-avatar size="256">
+              <v-icon size="256"> mdi-account-circle </v-icon>
             </v-avatar>
           </v-card-text>
           <v-card-actions class="justify-center mb-4">
