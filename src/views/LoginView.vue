@@ -103,6 +103,7 @@ export default {
                 const auth = {
                   displayName: userData.username || user.displayName,
                   email: userData.email || user.email,
+                  password: this.password,
                   uid: userData.uid || user.uid,
                 };
                 sessionStorage.setItem("user", JSON.stringify(auth));

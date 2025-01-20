@@ -121,7 +121,6 @@ export default {
           const userData = doc.data();
           this.username = userData.username;
           this.email = userData.email;
-          this.nowPassword = userData.password;
           this.featureEnabled = userData.featureEnabled;
 
           this.initialUsername = userData.username;
@@ -152,7 +151,9 @@ export default {
       if (
         this.username !== this.initialUsername ||
         this.email !== this.initialEmail ||
+        this.nowPassword !== "" ||
         this.password !== "" ||
+        this.confirmPassword !== "" ||
         this.featureEnabled !== this.initialFeatureEnabled
       ) {
         return false;
@@ -170,6 +171,20 @@ export default {
     async saveChanges() {
       const user = firebase.auth().currentUser;
       const uid = user.uid;
+      const auth = JSON.parse(sessionStorage.getItem("user"));
+
+      if (this.password) {
+        if (this.password !== this.confirmPassword) {
+          alert("新しいパスワードと確認用パスワードが一致しません");
+          this.discardChanges();
+          return;
+        }
+        if (this.nowPassword !== auth.password) {
+          alert("現在のパスワードが違います");
+          this.discardChanges();
+          return;
+        }
+      }
 
       try {
         // Firebase Authenticationのユーザーデータを更新
@@ -191,7 +206,6 @@ export default {
         this.initialEmail = this.email;
         this.initialFeatureEnabled = this.featureEnabled;
 
-        const auth = JSON.parse(sessionStorage.getItem("user"));
         auth.displayName = this.username;
         auth.email = this.email;
         auth.password = this.password;
@@ -207,6 +221,7 @@ export default {
     },
     discardChanges() {
       this.username = this.initialUsername;
+      this.nowPassword = "";
       this.password = "";
       this.confirmPassword = "";
       this.showPassword = false;
