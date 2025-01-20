@@ -53,16 +53,16 @@
             <v-text-field
               label="新しいパスワード"
               v-model="password"
-              :type="showPassword ? 'text' : 'password'"
+              type="password"
               outlined
-              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append="togglePasswordVisibility"
             ></v-text-field>
             <v-text-field
               label="新しいパスワード（確認用）"
               v-model="confirmPassword"
               outlined
-              type="password"
+              :type="showPassword ? 'text' : 'password'"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append="togglePasswordVisibility"
             ></v-text-field>
           </v-card-text>
 
@@ -96,13 +96,37 @@
 </template>
 
 <script>
+import firebase from "@/firebase/firebase";
+
 export default {
   created() {
-    // 初期値を保持するために、コンポーネント作成時に保存
-    this.initialUsername = this.username;
-    this.initialEmail = this.email;
-    this.initialPassword = this.password;
-    this.initialFeatureEnabled = this.featureEnabled;
+    const uid = firebase.auth().currentUser.uid;
+
+    // Firestoreからユーザーデータを取得
+    firebase
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          const userData = doc.data();
+          this.username = userData.username;
+          this.email = userData.email;
+          this.password = userData.password;
+          this.featureEnabled = userData.featureEnabled;
+
+          this.initialUsername = userData.username;
+          this.initialEmail = userData.email;
+          this.initialPassword = userData.password;
+          this.initialFeatureEnabled = userData.featureEnabled;
+        } else {
+          console.log("ユーザーデータが見つかりません");
+        }
+      })
+      .catch((error) => {
+        console.error("ユーザーデータの取得に失敗", error);
+      });
   },
   data: () => ({
     username: "", // ユーザー名
@@ -136,16 +160,50 @@ export default {
     changeAccountImage() {
       alert("アカウント画像を変更します！");
     },
-    saveChanges() {
-      alert("変更を保存しました！");
+    async saveChanges() {
+      const user = firebase.auth().currentUser;
+      const uid = user.uid;
+
+      try {
+        // Firebase Authenticationのユーザーデータを更新
+        if (user.email !== this.email) {
+          await user.updateEmail(this.email);
+        }
+        if (this.password) {
+          await user.updatePassword(this.password);
+        }
+
+        // Firestoreのユーザーデータを更新
+        await firebase.firestore().collection("users").doc(uid).update({
+          username: this.username,
+          email: this.email,
+          password: this.password,
+          featureEnabled: this.featureEnabled,
+        });
+
+        this.initialUsername = this.username;
+        this.initialEmail = this.email;
+        this.initialPassword = this.password;
+        this.initialFeatureEnabled = this.featureEnabled;
+
+        const auth = JSON.parse(sessionStorage.getItem("user"));
+        auth.displayName = this.username;
+        auth.email = this.email;
+        auth.password = this.password;
+        sessionStorage.setItem("user", JSON.stringify(auth));
+
+        alert("ユーザーデータを更新しました");
+      } catch (error) {
+        console.error("ユーザーデータの更新に失敗", error);
+        alert("ユーザーデータの更新に失敗しました");
+      }
     },
     discardChanges() {
-      alert("変更を破棄しました！");
-      this.username = "";
-      this.password = "";
+      this.username = this.initialUsername;
+      this.password = this.initialPassword;
       this.confirmPassword = "";
       this.showPassword = false;
-      this.featureEnabled = true;
+      this.featureEnabled = this.initialFeatureEnabled;
     },
   },
 };

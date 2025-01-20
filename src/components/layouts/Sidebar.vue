@@ -42,7 +42,11 @@ import firebase from "@/firebase/firebase";
 
 export default {
   mounted() {
-    this.auth = JSON.parse(sessionStorage.getItem("user"));
+    this.updateAuth();
+    window.addEventListener("storage", this.updateAuth);
+  },
+  beforeDestroy() {
+    window.removeEventListener("storage", this.updateAuth);
   },
   data: () => ({
     drawer: null,
@@ -55,6 +59,9 @@ export default {
     auth: null,
   }),
   methods: {
+    updateAuth() {
+      this.auth = JSON.parse(sessionStorage.getItem("user"));
+    },
     logout() {
       firebase
         .auth()
