@@ -51,6 +51,14 @@
           <v-card-title>パスワード</v-card-title>
           <v-card-text>
             <v-text-field
+              label="現在のパスワード"
+              v-model="nowPassword"
+              outlined
+              :type="showPassword ? 'text' : 'password'"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append="togglePasswordVisibility"
+            ></v-text-field>
+            <v-text-field
               label="新しいパスワード"
               v-model="password"
               type="password"
@@ -113,7 +121,7 @@ export default {
           const userData = doc.data();
           this.username = userData.username;
           this.email = userData.email;
-          this.password = userData.password;
+          this.nowPassword = userData.password;
           this.featureEnabled = userData.featureEnabled;
 
           this.initialUsername = userData.username;
@@ -130,6 +138,7 @@ export default {
   data: () => ({
     username: "", // ユーザー名
     email: "", // メールアドレス
+    nowPassword: "", // 現在のパスワード
     password: "", // 新しいパスワード
     confirmPassword: "", // パスワード確認用
     showPassword: false, // パスワードの表示/非表示切り替え
