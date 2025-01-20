@@ -86,6 +86,23 @@ export default {
           await result.user.updateProfile({ displayName: this.name });
           console.log("updateProfile", result.user);
 
+          if (result.user) {
+            const uid = result.user.uid;
+            const userInitialData = {
+              uid: uid,
+              username: this.name,
+              email: this.email,
+              password: this.password,
+              featureEnabled: true,
+            };
+
+            firebase
+              .firestore()
+              .collection("users")
+              .doc(uid)
+              .set(userInitialData);
+          }
+
           localStorage.message = "ユーザーの新規登録に成功しました。";
           this.$router.push("/");
         })

@@ -87,18 +87,31 @@ export default {
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
         .then((result) => {
+          const user = result.user;
           console.log("success");
-          console.log("user", result.user);
+          console.log("user", user);
 
-          const auth = {
-            displayName: result.user.displayName,
-            email: result.user.email,
-            uid: result.user.uid,
-            refreshToken: result.user.refreshToken,
-          };
-          sessionStorage.setItem("user", JSON.stringify(auth));
+          firebase
+            .firestore()
+            .collection("users")
+            .doc(user.uid)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                const userData = doc.data();
 
-          this.$router.push("task");
+                const auth = {
+                  displayName: userData.username || user.displayName,
+                  email: userData.email || user.email,
+                  uid: userData.uid || user.uid,
+                };
+                sessionStorage.setItem("user", JSON.stringify(auth));
+
+                this.$router.push("task");
+              } else {
+                this.errorMessage = "ユーザー情報が見つかりませんでした。";
+              }
+            });
         })
         .catch((error) => {
           console.log("fail", error);
