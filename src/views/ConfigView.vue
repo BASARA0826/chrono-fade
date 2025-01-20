@@ -118,7 +118,6 @@ export default {
 
           this.initialUsername = userData.username;
           this.initialEmail = userData.email;
-          this.initialPassword = userData.password;
           this.initialFeatureEnabled = userData.featureEnabled;
         } else {
           console.log("ユーザーデータが見つかりません");
@@ -137,7 +136,6 @@ export default {
     featureEnabled: true, // 機能の有効/無効
     initialUsername: "", // 初期値を保存
     initialEmail: "", // 初期値を保存
-    initialPassword: "", // 初期値を保存
     initialFeatureEnabled: true, // 初期値を保存
   }),
   computed: {
@@ -145,7 +143,7 @@ export default {
       if (
         this.username !== this.initialUsername ||
         this.email !== this.initialEmail ||
-        this.password !== this.initialPassword ||
+        this.password !== "" ||
         this.featureEnabled !== this.initialFeatureEnabled
       ) {
         return false;
@@ -177,13 +175,11 @@ export default {
         await firebase.firestore().collection("users").doc(uid).update({
           username: this.username,
           email: this.email,
-          password: this.password,
           featureEnabled: this.featureEnabled,
         });
 
         this.initialUsername = this.username;
         this.initialEmail = this.email;
-        this.initialPassword = this.password;
         this.initialFeatureEnabled = this.featureEnabled;
 
         const auth = JSON.parse(sessionStorage.getItem("user"));
@@ -193,6 +189,8 @@ export default {
         sessionStorage.setItem("user", JSON.stringify(auth));
 
         alert("ユーザーデータを更新しました");
+        this.password = "";
+        this.confirmPassword = "";
       } catch (error) {
         console.error("ユーザーデータの更新に失敗", error);
         alert("ユーザーデータの更新に失敗しました");
@@ -200,7 +198,7 @@ export default {
     },
     discardChanges() {
       this.username = this.initialUsername;
-      this.password = this.initialPassword;
+      this.password = "";
       this.confirmPassword = "";
       this.showPassword = false;
       this.featureEnabled = this.initialFeatureEnabled;

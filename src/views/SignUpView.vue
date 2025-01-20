@@ -92,7 +92,6 @@ export default {
               uid: uid,
               username: this.name,
               email: this.email,
-              password: this.password,
               featureEnabled: true,
             };
 
