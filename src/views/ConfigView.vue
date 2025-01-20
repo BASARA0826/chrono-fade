@@ -31,6 +31,7 @@
             <v-text-field
               label="ユーザー名"
               v-model="username"
+              :rules="nameRules"
               outlined
             ></v-text-field>
           </v-card-text>
@@ -42,6 +43,7 @@
             <v-text-field
               label="E-mail"
               v-model="email"
+              :rules="emailRules"
               outlined
             ></v-text-field>
           </v-card-text>
@@ -50,6 +52,14 @@
           <v-divider></v-divider>
           <v-card-title>パスワード</v-card-title>
           <v-card-text>
+            <v-text-field
+              label="現在のパスワード"
+              v-model="nowPassword"
+              outlined
+              :type="showPassword ? 'text' : 'password'"
+              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append="togglePasswordVisibility"
+            ></v-text-field>
             <v-text-field
               label="新しいパスワード"
               v-model="password"
@@ -69,7 +79,7 @@
           <!-- スライドボタン -->
           <v-divider></v-divider>
           <v-card-title
-            >忘れかけた記録は成し遂げてもなお忘れたままだ</v-card-title
+            >「記録」は「記憶」となり時とともに過ぎ、元に戻ることはない</v-card-title
           >
           <v-card-text>
             <v-switch
@@ -82,7 +92,11 @@
           <!-- ボタン -->
           <v-divider></v-divider>
           <v-card-actions>
-            <v-btn color="success" type="submit" @click="saveChanges"
+            <v-btn
+              color="success"
+              type="submit"
+              :disabled="isValid"
+              @click="saveChanges"
               >変更保存</v-btn
             >
             <v-btn color="error" :disabled="inValid" @click="discardChanges"
@@ -113,12 +127,10 @@ export default {
           const userData = doc.data();
           this.username = userData.username;
           this.email = userData.email;
-          this.password = userData.password;
           this.featureEnabled = userData.featureEnabled;
 
           this.initialUsername = userData.username;
           this.initialEmail = userData.email;
-          this.initialPassword = userData.password;
           this.initialFeatureEnabled = userData.featureEnabled;
         } else {
           console.log("ユーザーデータが見つかりません");
@@ -131,21 +143,40 @@ export default {
   data: () => ({
     username: "", // ユーザー名
     email: "", // メールアドレス
+    nowPassword: "", // 現在のパスワード
     password: "", // 新しいパスワード
     confirmPassword: "", // パスワード確認用
     showPassword: false, // パスワードの表示/非表示切り替え
     featureEnabled: true, // 機能の有効/無効
     initialUsername: "", // 初期値を保存
     initialEmail: "", // 初期値を保存
-    initialPassword: "", // 初期値を保存
     initialFeatureEnabled: true, // 初期値を保存
+    nameRules: [
+      (v) => !!v || "ユーザー名を入力してください",
+      (v) => (v && v.length <= 10) || "10文字以下に設定してください",
+    ],
+    emailRules: [
+      (v) => !!v || "メールアドレスを入力してください",
+      (v) => /.+@.+\..+/.test(v) || "不正なメールアドレスです",
+    ],
   }),
   computed: {
+    isValid() {
+      const isNameValid = this.nameRules.every(
+        (rule) => rule(this.username) === true
+      );
+      const isEmailValid = this.emailRules.every(
+        (rule) => rule(this.email) === true
+      );
+      return !isNameValid || !isEmailValid;
+    },
     inValid() {
       if (
         this.username !== this.initialUsername ||
         this.email !== this.initialEmail ||
-        this.password !== this.initialPassword ||
+        this.nowPassword !== "" ||
+        this.password !== "" ||
+        this.confirmPassword !== "" ||
         this.featureEnabled !== this.initialFeatureEnabled
       ) {
         return false;
@@ -163,6 +194,20 @@ export default {
     async saveChanges() {
       const user = firebase.auth().currentUser;
       const uid = user.uid;
+      const auth = JSON.parse(sessionStorage.getItem("user"));
+
+      if (this.password) {
+        if (this.password !== this.confirmPassword) {
+          alert("新しいパスワードと確認用パスワードが一致しません");
+          this.discardChanges();
+          return;
+        }
+        if (this.nowPassword !== auth.password) {
+          alert("現在のパスワードが違います");
+          this.discardChanges();
+          return;
+        }
+      }
 
       try {
         // Firebase Authenticationのユーザーデータを更新
@@ -177,22 +222,21 @@ export default {
         await firebase.firestore().collection("users").doc(uid).update({
           username: this.username,
           email: this.email,
-          password: this.password,
           featureEnabled: this.featureEnabled,
         });
 
         this.initialUsername = this.username;
         this.initialEmail = this.email;
-        this.initialPassword = this.password;
         this.initialFeatureEnabled = this.featureEnabled;
 
-        const auth = JSON.parse(sessionStorage.getItem("user"));
         auth.displayName = this.username;
         auth.email = this.email;
         auth.password = this.password;
         sessionStorage.setItem("user", JSON.stringify(auth));
 
         alert("ユーザーデータを更新しました");
+        this.password = "";
+        this.confirmPassword = "";
       } catch (error) {
         console.error("ユーザーデータの更新に失敗", error);
         alert("ユーザーデータの更新に失敗しました");
@@ -200,7 +244,8 @@ export default {
     },
     discardChanges() {
       this.username = this.initialUsername;
-      this.password = this.initialPassword;
+      this.nowPassword = "";
+      this.password = "";
       this.confirmPassword = "";
       this.showPassword = false;
       this.featureEnabled = this.initialFeatureEnabled;
