@@ -78,9 +78,7 @@
 
           <!-- スライドボタン -->
           <v-divider></v-divider>
-          <v-card-title
-            >「記録」は「記憶」となり時とともに過ぎ、元に戻ることはない</v-card-title
-          >
+          <v-card-title>「記録」のキオク</v-card-title>
           <v-card-text>
             <v-switch
               v-model="featureEnabled"
@@ -91,7 +89,7 @@
 
           <!-- ボタン -->
           <v-divider></v-divider>
-          <v-card-actions>
+          <v-card-actions class="align-center">
             <v-btn
               color="success"
               type="submit"
@@ -102,6 +100,27 @@
             <v-btn color="error" :disabled="inValid" @click="discardChanges"
               >変更破棄</v-btn
             >
+            <transition name="fade">
+              <v-alert
+                dense
+                text
+                type="success"
+                class="ml-4 success-message"
+                v-if="message"
+              >
+                {{ message }}
+              </v-alert>
+
+              <v-alert
+                dense
+                outlined
+                type="error"
+                class="ml-4 error-message"
+                v-if="errorMessage"
+              >
+                {{ errorMessage }}
+              </v-alert>
+            </transition>
           </v-card-actions>
         </v-card>
       </v-container>
@@ -159,6 +178,8 @@ export default {
       (v) => !!v || "メールアドレスを入力してください",
       (v) => /.+@.+\..+/.test(v) || "不正なメールアドレスです",
     ],
+    message: "",
+    errorMessage: "",
   }),
   computed: {
     isValid() {
@@ -198,13 +219,16 @@ export default {
 
       if (this.password) {
         if (this.password !== this.confirmPassword) {
-          alert("新しいパスワードと確認用パスワードが一致しません");
+          this.errorMessage =
+            "新しいパスワードと確認用パスワードが一致しません";
           this.discardChanges();
+          this.clearMessage();
           return;
         }
         if (this.nowPassword !== auth.password) {
-          alert("現在のパスワードが違います");
+          this.errorMessage = "現在のパスワードが違います";
           this.discardChanges();
+          this.clearMessage();
           return;
         }
       }
@@ -231,15 +255,21 @@ export default {
 
         auth.displayName = this.username;
         auth.email = this.email;
-        auth.password = this.password;
+        if (this.password) {
+          auth.password = this.password;
+        }
         sessionStorage.setItem("user", JSON.stringify(auth));
 
-        alert("ユーザーデータを更新しました");
         this.password = "";
         this.confirmPassword = "";
+        this.message = "変更を保存しました";
+        this.discardChanges();
+        this.clearMessage();
       } catch (error) {
         console.error("ユーザーデータの更新に失敗", error);
-        alert("ユーザーデータの更新に失敗しました");
+        this.errorMessage = "変更の保存に失敗しました";
+        this.discardChanges();
+        this.clearMessage();
       }
     },
     discardChanges() {
@@ -249,6 +279,12 @@ export default {
       this.confirmPassword = "";
       this.showPassword = false;
       this.featureEnabled = this.initialFeatureEnabled;
+    },
+    clearMessage() {
+      setTimeout(() => {
+        this.message = "";
+        this.errorMessage = "";
+      }, 4000);
     },
   },
 };
@@ -262,5 +298,14 @@ export default {
 .justify-center {
   display: flex;
   justify-content: center;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.8s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
