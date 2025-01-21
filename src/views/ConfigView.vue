@@ -105,7 +105,7 @@
                 dense
                 text
                 type="success"
-                class="ml-4 success-message"
+                class="ml-4 success-message config-alert"
                 v-if="message"
               >
                 {{ message }}
@@ -115,7 +115,7 @@
                 dense
                 outlined
                 type="error"
-                class="ml-4 error-message"
+                class="ml-4 error-message config-alert"
                 v-if="errorMessage"
               >
                 {{ errorMessage }}
@@ -307,5 +307,9 @@ export default {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.config-alert {
+  margin-bottom: 0px;
 }
 </style>
