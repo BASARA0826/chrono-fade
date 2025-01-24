@@ -190,7 +190,11 @@ export default {
     },
     redirect() {
       this.successDialog = false;
-      this.$router.push("/create");
+      this.title = "";
+      this.content = "";
+      this.selectDate = "";
+      this.selectTime = "";
+      this.deadline = "";
     },
     navToTask() {
       this.$router.push("/task");
