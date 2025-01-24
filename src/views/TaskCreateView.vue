@@ -16,6 +16,7 @@
             <v-text-field
               label="タスクのタイトル"
               v-model="title"
+              :rules="[(v) => !!v || 'タイトルを入力してください']"
               outlined
               dense
             ></v-text-field>
@@ -26,6 +27,7 @@
             <v-textarea
               label="タスクの内容"
               v-model="content"
+              :rules="[(v) => !!v || '内容を入力してください']"
               outlined
               dense
             ></v-textarea>
@@ -85,13 +87,41 @@
               作成
             </v-btn>
           </v-card-actions>
+          <transition name="fade">
+            <v-alert
+              dense
+              outlined
+              type="error"
+              class="ml-4 error-message"
+              v-if="errorMessage"
+            >
+              {{ errorMessage }}
+            </v-alert>
+          </transition>
         </v-card>
       </v-container>
+      <!-- ポップアップ -->
+      <v-dialog v-model="successDialog" persistent max-width="500">
+        <v-card class="popup-card">
+          <v-card-title class="popup-title">
+            タスクの作成が完了しました
+          </v-card-title>
+          <v-card-actions class="popup-actions">
+            <v-spacer></v-spacer>
+            <v-btn class="popup-btn" text @click="redirect"> 戻る </v-btn>
+            <v-btn class="popup-btn" text @click="navToTask">
+              タスク一覧へ遷移
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-main>
   </v-app>
 </template>
 
 <script>
+import firebase from "@/firebase/firebase";
+
 export default {
   data: () => ({
     title: "", // タスクのタイトル
@@ -100,11 +130,17 @@ export default {
     selectDate: "", // 日付
     selectTime: "", // 時間
     menu: false, // 日付選択メニューの状態
+    errorMessage: "",
+    successDialog: false,
   }),
   computed: {
     invalid() {
-      console.log("invalid call", this.title, this.content, this.deadline);
-      if (!this.title || !this.content || !this.deadline) {
+      if (
+        !this.title ||
+        !this.content ||
+        !this.selectDate ||
+        !this.selectTime
+      ) {
         return true;
       }
       return false;
@@ -117,15 +153,53 @@ export default {
         this.deadline = `${this.selectDate} ${this.selectTime}`;
         this.menu = false; // メニューを閉じる
       } else {
-        alert("日付と時間を選択してください！");
+        this.errorMessage = "日付と時間を選択してください";
+        this.clearMessage();
       }
     },
-    createTask() {
-      // 作成ボタンの仮の挙動
-      alert(
-        "タスクが作成されました！\n" +
-          `タイトル: ${this.title}\n内容: ${this.content}\n期限: ${this.deadline}`
-      );
+    async createTask() {
+      try {
+        const user = JSON.parse(sessionStorage.getItem("user"));
+        if (!user) {
+          this.errorMessage = "ログインユーザー情報が取得できませんでした";
+          this.clearMessage();
+          return;
+        }
+
+        const uid = user.uid;
+
+        // task_idの生成
+        const taskId = firebase.firestore().collection("task").doc().id;
+
+        // データ登録
+        await firebase.firestore().collection("task").doc(taskId).set({
+          task_id: taskId,
+          title: this.title,
+          content: this.content,
+          selectDate: this.selectDate,
+          selectTime: this.selectTime,
+          uid: uid,
+        });
+
+        this.successDialog = true;
+      } catch (error) {
+        console.error("エラーが発生しました", error);
+        this.errorMessage = "エラーが発生しました";
+        this.clearMessage();
+      }
+    },
+    redirect() {
+      this.successDialog = false;
+      this.$router.push("/create");
+    },
+    navToTask() {
+      this.$router.push("/task");
+    },
+    clearMessage() {
+      setTimeout(() => {
+        this.message = "";
+        this.errorMessage = "";
+      }, 4000);
     },
   },
 };
@@ -143,5 +217,31 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.popup-card {
+  padding: 20px;
+}
+.popup-title {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+.popup-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.popup-btn {
+  padding: 10px 20px;
+  border-radius: 20px;
+  background-color: #1976d2;
+  color: white !important;
+  text-transform: uppercase;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+.popup-btn:hover {
+  background-color: #1565c0;
 }
 </style>
