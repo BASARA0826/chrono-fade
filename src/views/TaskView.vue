@@ -39,7 +39,20 @@ export default {
     Sidebar,
   },
   async created() {
-    const taskRef = firebase.firestore().collection("task");
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const uid = user.uid;
+
+    if (!uid) {
+      console.error("uid is not found");
+      return;
+    }
+
+    const taskRef = firebase
+      .firestore()
+      .collection("task")
+      .where("uid", "==", uid)
+      .orderBy("selectDate", "asc")
+      .orderBy("selectTime", "asc");
     const snapshot = await taskRef.get();
 
     snapshot.forEach((doc) => {
