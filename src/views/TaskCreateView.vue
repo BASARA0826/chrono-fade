@@ -11,27 +11,29 @@
     <v-main>
       <v-container>
         <v-card class="pa-4" outlined>
-          <!-- タイトル入力 -->
-          <v-card-title>
-            <v-text-field
-              label="タスクのタイトル"
-              v-model="title"
-              :rules="[(v) => !!v || 'タイトルを入力してください']"
-              outlined
-              dense
-            ></v-text-field>
-          </v-card-title>
+          <v-form ref="form">
+            <!-- タイトル入力 -->
+            <v-card-title>
+              <v-text-field
+                label="タスクのタイトル"
+                v-model="title"
+                :rules="[(v) => !!v || 'タイトルを入力してください']"
+                outlined
+                dense
+              ></v-text-field>
+            </v-card-title>
 
-          <!-- 内容入力 -->
-          <v-card-text>
-            <v-textarea
-              label="タスクの内容"
-              v-model="content"
-              :rules="[(v) => !!v || '内容を入力してください']"
-              outlined
-              dense
-            ></v-textarea>
-          </v-card-text>
+            <!-- 内容入力 -->
+            <v-card-text>
+              <v-textarea
+                label="タスクの内容"
+                v-model="content"
+                :rules="[(v) => !!v || '内容を入力してください']"
+                outlined
+                dense
+              ></v-textarea>
+            </v-card-text>
+          </v-form>
 
           <!-- 期限入力 -->
           <v-card-subtitle>
@@ -189,6 +191,7 @@ export default {
       }
     },
     redirect() {
+      this.$refs.form.resetValidation();
       this.successDialog = false;
       this.title = "";
       this.content = "";
