@@ -56,9 +56,9 @@
               label="現在のパスワード"
               v-model="nowPassword"
               outlined
-              :type="showPassword ? 'text' : 'password'"
-              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append="togglePasswordVisibility"
+              :type="showPasswordNow ? 'text' : 'password'"
+              :append-icon="showPasswordNow ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append="togglePasswordNow"
             ></v-text-field>
             <v-text-field
               label="新しいパスワード"
@@ -70,9 +70,9 @@
               label="新しいパスワード（確認用）"
               v-model="confirmPassword"
               outlined
-              :type="showPassword ? 'text' : 'password'"
-              :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append="togglePasswordVisibility"
+              :type="showPasswordNew ? 'text' : 'password'"
+              :append-icon="showPasswordNew ? 'mdi-eye' : 'mdi-eye-off'"
+              @click:append="togglePasswordNew"
             ></v-text-field>
           </v-card-text>
 
@@ -159,16 +159,17 @@ export default {
       });
   },
   data: () => ({
-    username: "", // ユーザー名
-    email: "", // メールアドレス
-    nowPassword: "", // 現在のパスワード
-    password: "", // 新しいパスワード
-    confirmPassword: "", // パスワード確認用
-    showPassword: false, // パスワードの表示/非表示切り替え
-    featureEnabled: true, // 機能の有効/無効
-    initialUsername: "", // 初期値を保存
-    initialEmail: "", // 初期値を保存
-    initialFeatureEnabled: true, // 初期値を保存
+    username: "",
+    email: "",
+    nowPassword: "",
+    password: "",
+    confirmPassword: "",
+    showPasswordNow: false,
+    showPasswordNew: false,
+    featureEnabled: true,
+    initialUsername: "",
+    initialEmail: "",
+    initialFeatureEnabled: true,
     nameRules: [
       (v) => !!v || "ユーザー名を入力してください",
       (v) => (v && v.length <= 10) || "10文字以下に設定してください",
@@ -205,8 +206,11 @@ export default {
     },
   },
   methods: {
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword;
+    togglePasswordNow() {
+      this.showPasswordNow = !this.showPasswordNow;
+    },
+    togglePasswordNew() {
+      this.showPasswordNew = !this.showPasswordNew;
     },
     changeAccountImage() {
       alert("アカウント画像を変更します！");
