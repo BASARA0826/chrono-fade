@@ -79,12 +79,11 @@
           <!-- スライドボタン -->
           <v-divider></v-divider>
           <v-card-title>「記録」のキオク</v-card-title>
-          <v-card-text>
-            <v-switch
-              v-model="featureEnabled"
-              label="完了したタスクを完了時点の状態で表示します。無効にするとタスク作成時の内容を表示します"
-              inset
-            ></v-switch>
+          <v-card-text class="switch-container">
+            <v-switch v-model="featureEnabled" inset></v-switch>
+            <v-card-text>
+              完了したタスクを完了時点の状態で表示します。無効にするとタスク作成時の内容を表示します
+            </v-card-text>
           </v-card-text>
 
           <!-- ボタン -->
@@ -298,6 +297,12 @@ export default {
 .justify-center {
   display: flex;
   justify-content: center;
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  max-width: fit-content;
 }
 
 .fade-enter-active,
