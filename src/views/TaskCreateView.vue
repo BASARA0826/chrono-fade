@@ -62,11 +62,15 @@
                   class="task-create-view-selectDate"
                   v-model="selectDate"
                   show-adjacent-months
+                  :min="minDate"
+                  @input="handleDateChange"
                 ></v-date-picker>
                 <v-time-picker
                   class="task-create-view-selectTime"
                   v-model="selectTime"
                   scrollable
+                  :disabled="!selectDate"
+                  :min="minTime"
                 ></v-time-picker>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -134,28 +138,50 @@ export default {
     menu: false, // 日付選択メニューの状態
     errorMessage: "",
     successDialog: false,
+    minDate: new Date().toISOString().substr(0, 10),
+    minTime: null,
   }),
   computed: {
     invalid() {
-      if (
-        !this.title ||
-        !this.content ||
-        !this.selectDate ||
-        !this.selectTime
-      ) {
+      if (!this.title || !this.content || !this.deadline) {
         return true;
       }
       return false;
     },
   },
   methods: {
+    handleDateChange() {
+      const today = new Date().toISOString().substr(0, 10);
+      if (this.selectDate === today) {
+        const now = new Date();
+        this.minTime =
+          now.getHours().toString().padStart(2, "0") +
+          ":" +
+          now.getMinutes().toString().padStart(2, "0");
+      } else {
+        this.minTime = null;
+      }
+    },
     saveDeadline() {
       if (this.selectDate && this.selectTime) {
+        const now = new Date();
+        const selectedDateTime = new Date(
+          `${this.selectDate}T${this.selectTime}:00`
+        );
+
+        if (selectedDateTime < now) {
+          this.menu = false;
+          this.errorMessage = "過去の日付は選択できません";
+          this.clearMessage();
+          return;
+        }
+
         // 日付と時間を結合
         this.deadline = `${this.selectDate} ${this.selectTime}`;
-        this.menu = false; // メニューを閉じる
+        this.menu = false;
       } else {
-        this.errorMessage = "日付と時間を選択してください";
+        this.menu = false;
+        this.errorMessage = "日付と時間は両方とも指定してください";
         this.clearMessage();
       }
     },
