@@ -19,9 +19,7 @@
 
           <!-- タスクの内容 -->
           <v-card-text class="task-detail-view-content">
-            <p>
-              {{ task.content }}
-            </p>
+            <p>{{ task.content }}</p>
           </v-card-text>
 
           <!-- タスクの期限 -->
