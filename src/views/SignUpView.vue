@@ -121,25 +121,6 @@ export default {
 </script>
 
 <style>
-.login-box {
-  margin: 0 auto;
-  padding: 30px;
-  width: 50%;
-}
-
-.login-form {
-  margin: 150px;
-  padding: 30px;
-}
-
-.login-title {
-  display: inline-block;
-}
-
-.login-btn {
-  margin-right: 20px;
-}
-
 .error-message {
   margin-top: 20px;
 }
