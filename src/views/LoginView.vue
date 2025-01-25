@@ -142,7 +142,7 @@ export default {
 .login-box {
   margin: 0 auto;
   padding: 30px;
-  width: 50%;
+  width: 900px !important;
 }
 
 .login-form {
