@@ -6,6 +6,7 @@ import TaskCreateView from "@/views/TaskCreateView.vue";
 import ConfigView from "@/views/ConfigView.vue";
 import LoginView from "@/views/LoginView.vue";
 import SignUpView from "@/views/SignUpView.vue";
+import TaskCompView from "@/views/TaskCompView.vue";
 // import firebase from "@/firebase/firebase";
 
 Vue.use(VueRouter);
@@ -37,6 +38,14 @@ const routes = [
     path: "/taskDetail",
     name: "taskDetail",
     component: TaskDetailView,
+    meta: { requiresAuth: true },
+  },
+
+  // タスク完了一覧
+  {
+    path: "/taskComp",
+    name: "taskComp",
+    component: TaskCompView,
     meta: { requiresAuth: true },
   },
 

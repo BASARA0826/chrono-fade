@@ -61,7 +61,7 @@ export default {
     });
   },
   data: () => ({
-    // task_id, title, content, selectDate, selectTimeの5項目
+    // task_id, title, content, selectDate, selectTime, uidの6項目
     tasks: [],
   }),
 };

@@ -52,7 +52,7 @@ export default {
     drawer: null,
     links: [
       ["mdi-home", "タスク一覧", "/task"],
-      ["mdi-list-box-outline", "完了タスク一覧", "/task"],
+      ["mdi-list-box-outline", "完了タスク一覧", "/taskComp"],
       ["mdi-pencil-outline", "タスク作成", "/create"],
       ["mdi-account-edit-outline", "アカウント設定", "/config"],
     ],
