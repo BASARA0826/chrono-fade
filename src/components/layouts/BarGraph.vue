@@ -51,6 +51,6 @@ export default {
   display: flex;
   justify-content: center;
   height: 500px;
-  margin-bottom: 30px;
+  margin: 30px 0;
 }
 </style>

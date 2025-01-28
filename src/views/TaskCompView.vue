@@ -9,6 +9,15 @@
 
     <v-main>
       <v-container>
+        <v-card class="memory-card">
+          <div class="card-content">
+            <v-card-title class="card-title"
+              >思い出せなくなってしまった記録</v-card-title
+            >
+            <v-card-text class="card-text">10</v-card-text>
+          </div>
+        </v-card>
+
         <BarGraph />
 
         <v-row>
@@ -70,3 +79,32 @@ export default {
   }),
 };
 </script>
+
+<style>
+.memory-card {
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.card-title {
+  font-size: 1.5rem; /* タイトルのフォントサイズ */
+  font-weight: bold;
+}
+
+.card-text {
+  font-size: 1.5rem; /* テキストのフォントサイズ */
+  color: #4caf50; /* 色を変更する場合 */
+  width: 100px;
+  margin-left: 16px;
+  padding-bottom: 0;
+}
+</style>
