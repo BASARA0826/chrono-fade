@@ -28,7 +28,7 @@
           </v-card-subtitle>
 
           <!-- 完了ボタン -->
-          <v-card-actions>
+          <v-card-actions v-if="!task.completedFlg">
             <v-spacer></v-spacer>
             <v-btn color="success" dark @click="completeTask">
               <v-icon left>mdi-check</v-icon>
@@ -37,6 +37,19 @@
           </v-card-actions>
         </v-card>
       </v-container>
+
+      <!-- ポップアップ -->
+      <v-dialog v-model="successDialog" persistent max-width="500">
+        <v-card class="popup-card">
+          <v-card-title class="popup-title">
+            タスクの作成が完了しました
+          </v-card-title>
+          <v-card-actions class="popup-actions">
+            <v-spacer></v-spacer>
+            <v-btn class="popup-btn" text @click="navToTask"> OK </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-main>
   </v-app>
 </template>
@@ -59,6 +72,7 @@ export default {
       if (!snapshot.empty) {
         const doc = snapshot.docs[0];
         this.task = doc.data();
+        this.task.docId = doc.id;
       } else {
         console.error("タスクが存在しません");
       }
@@ -72,11 +86,23 @@ export default {
       selectDate: "",
       selectTime: "",
     },
+    successDialog: false,
   }),
   methods: {
-    completeTask() {
-      // 完了処理のロジックを後で追加
-      alert("タスクを完了しました！");
+    async completeTask() {
+      const now = new Date().toISOString();
+      await firebase
+        .firestore()
+        .collection("task")
+        .doc(this.task.docId)
+        .update({
+          completedFlg: true,
+          completedDate: now,
+        });
+      this.successDialog = true;
+    },
+    navToTask() {
+      this.$router.push("/task");
     },
   },
 };

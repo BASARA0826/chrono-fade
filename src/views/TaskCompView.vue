@@ -64,17 +64,17 @@ export default {
       .firestore()
       .collection("task")
       .where("uid", "==", uid)
-      .orderBy("selectDate", "asc")
-      .orderBy("selectTime", "asc");
-    const snapshot = await taskRef.get();
+      .where("completedFlg", "==", true)
+      .orderBy("completedDate", "desc");
 
-    snapshot.forEach((doc) => {
-      console.log(doc.data());
-      this.tasks.push(doc.data());
+    taskRef.onSnapshot((snapshot) => {
+      this.tasks = [];
+      snapshot.forEach((doc) => {
+        this.tasks.push(doc.data());
+      });
     });
   },
   data: () => ({
-    // task_id, title, content, selectDate, selectTime, uidの6項目
     tasks: [],
   }),
 };
