@@ -106,6 +106,7 @@
           </transition>
         </v-card>
       </v-container>
+
       <!-- ポップアップ -->
       <v-dialog v-model="successDialog" persistent max-width="500">
         <v-card class="popup-card">
@@ -207,6 +208,8 @@ export default {
           selectDate: this.selectDate,
           selectTime: this.selectTime,
           uid: uid,
+          completedFlg: false,
+          completedDate: null,
         });
 
         this.successDialog = true;
