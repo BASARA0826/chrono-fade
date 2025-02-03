@@ -23,14 +23,20 @@
         <v-row>
           <v-col v-for="(data, index) in tasks" :key="index" cols="4">
             <router-link
-              :to="{ path: '/taskDetail', query: { task_id: data.task_id } }"
+              :to="{
+                path: '/taskDetail',
+                query: {
+                  task_id: data.task_id,
+                  formattedDate: formatDate(data.completedDate),
+                },
+              }"
             >
               <v-card height="200" class="pa-4 card-container">
                 <v-card-title class="task-view-title">
                   {{ data.title }}
                 </v-card-title>
                 <v-card-subtitle class="task-view-deadline">
-                  {{ data.selectDate }} {{ data.selectTime }}
+                  完了日時：{{ formatDate(data.completedDate) }}
                 </v-card-subtitle>
               </v-card>
             </router-link>
@@ -45,6 +51,7 @@
 import Sidebar from "@/components/layouts/Sidebar.vue";
 import BarGraph from "@/components/layouts/BarGraph.vue";
 import firebase from "@/firebase/firebase";
+import { format } from "date-fns";
 
 export default {
   components: {
@@ -77,6 +84,15 @@ export default {
   data: () => ({
     tasks: [],
   }),
+  methods: {
+    formatDate(date) {
+      if (!date) {
+        return "";
+      }
+      const formattedDate = format(new Date(date), "yyyy/MM/dd HH:mm");
+      return formattedDate;
+    },
+  },
 };
 </script>
 

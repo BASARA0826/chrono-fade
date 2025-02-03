@@ -23,8 +23,18 @@
           </v-card-text>
 
           <!-- タスクの期限 -->
-          <v-card-subtitle class="task-detail-view-deadline">
-            {{ task.selectDate }} {{ task.selectTime }}
+          <v-card-subtitle
+            class="task-detail-view-deadline"
+            v-if="!task.completedFlg"
+          >
+            期限：{{ task.selectDate }} {{ task.selectTime }}
+          </v-card-subtitle>
+
+          <v-card-subtitle
+            class="task-detail-view-deadline"
+            v-if="task.completedFlg"
+          >
+            完了日時：{{ formattedDate }}
           </v-card-subtitle>
 
           <!-- 完了ボタン -->
@@ -64,6 +74,7 @@ export default {
   },
   async created() {
     this.task_id = this.$route.query.task_id;
+    this.formattedDate = this.$route.query.formattedDate;
 
     if (this.task_id) {
       const taskRef = firebase.firestore().collection("task");
@@ -86,6 +97,7 @@ export default {
       selectDate: "",
       selectTime: "",
     },
+    formattedDate: "",
     successDialog: false,
   }),
   methods: {
