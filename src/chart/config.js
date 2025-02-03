@@ -1,5 +1,8 @@
 //棒グラフに関する設定。
 export const barConfig = (labels, completedTasks, lostTasks) => {
+  const maxValue = Math.max(...completedTasks, ...lostTasks, 20);
+  const yAxisMax = Math.ceil(maxValue / 5) * 5;
+
   return {
     type: "bar",
     data: {
@@ -23,7 +26,7 @@ export const barConfig = (labels, completedTasks, lostTasks) => {
       scales: {
         y: {
           beginAtZero: true,
-          max: Math.max(...completedTasks, ...lostTasks, 20),
+          max: yAxisMax,
           ticks: {
             stepSize: 5,
           },
