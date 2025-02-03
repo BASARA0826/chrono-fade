@@ -19,7 +19,7 @@
                   {{ data.title }}
                 </v-card-title>
                 <v-card-subtitle class="task-view-deadline">
-                  {{ data.selectDate }} {{ data.selectTime }}
+                  期限：{{ data.selectDate }} {{ data.selectTime }}
                 </v-card-subtitle>
               </v-card>
             </router-link>
