@@ -11,7 +11,14 @@
 
     <v-main>
       <v-container>
-        <v-card class="pa-4 task-detail-view-card" outlined>
+        <!-- ローディング中は Skeleton Loader を表示 -->
+        <v-skeleton-loader
+          v-if="loading"
+          type="image"
+          class="task-detail-skeleton"
+        ></v-skeleton-loader>
+
+        <v-card v-else class="pa-4 task-detail-view-card" outlined>
           <!-- タスクのタイトル -->
           <v-card-title class="task-detail-view-title">
             {{ task.title }}
@@ -75,6 +82,7 @@ export default {
   async created() {
     this.task_id = this.$route.query.task_id;
     this.formattedDate = this.$route.query.formattedDate;
+    this.loading = true;
 
     if (this.task_id) {
       const taskRef = firebase.firestore().collection("task");
@@ -88,6 +96,10 @@ export default {
         console.error("タスクが存在しません");
       }
     }
+
+    setTimeout(() => {
+      this.loading = false;
+    }, 1000);
   },
   data: () => ({
     task_id: "",
@@ -99,6 +111,7 @@ export default {
     },
     formattedDate: "",
     successDialog: false,
+    loading: false,
   }),
   methods: {
     async completeTask() {
@@ -121,6 +134,11 @@ export default {
 </script>
 
 <style>
+.task-detail-skeleton {
+  width: 100%;
+  margin: 0 auto;
+}
+
 .task-detail-view-card {
   position: relative;
   margin: 0 auto;
