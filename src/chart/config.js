@@ -1,5 +1,5 @@
 //棒グラフに関する設定。
-export const barConfig = (labels) => {
+export const barConfig = (labels, completedTasks, lostTasks) => {
   return {
     type: "bar",
     data: {
@@ -8,13 +8,13 @@ export const barConfig = (labels) => {
         {
           label: "完了したタスク",
           backgroundColor: "#1976d2",
-          data: [3, 20, 0, 4, 10, 9, 18],
+          data: completedTasks,
           borderWidth: 1,
         },
         {
           label: "消失したタスク",
           backgroundColor: "gray",
-          data: [5, 0, 10, 6, 5, 1, 2],
+          data: lostTasks,
           borderWidth: 1,
         },
       ],
@@ -23,7 +23,7 @@ export const barConfig = (labels) => {
       scales: {
         y: {
           beginAtZero: true,
-          max: 20,
+          max: Math.max(...completedTasks, ...lostTasks, 20),
           ticks: {
             stepSize: 5,
           },

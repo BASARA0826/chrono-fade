@@ -58,7 +58,7 @@ export default {
     Sidebar,
     BarGraph,
   },
-  async created() {
+  created() {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const uid = user.uid;
 
