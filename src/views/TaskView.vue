@@ -38,7 +38,7 @@ export default {
   components: {
     Sidebar,
   },
-  async created() {
+  created() {
     const user = JSON.parse(sessionStorage.getItem("user"));
     const uid = user.uid;
 
