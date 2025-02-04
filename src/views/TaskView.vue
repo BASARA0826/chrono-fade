@@ -2,7 +2,7 @@
   <v-app id="inspire">
     <Sidebar />
     <v-app-bar app hide-on-scroll prominent>
-      <v-toolbar-title class="siteTitle">ChronoFade</v-toolbar-title>
+      <v-toolbar-title class="siteTitle">{{ fadedTitle }}</v-toolbar-title>
 
       <v-spacer></v-spacer>
     </v-app-bar>
@@ -64,7 +64,21 @@ export default {
   },
   data: () => ({
     tasks: [],
+    siteTitle: "ChronoFade",
   }),
+  computed: {
+    fadedTitle() {
+      return this.siteTitle
+        .split("")
+        .map((char) => {
+          if (Math.random() < 0.1) {
+            return char === "C" || char === "F" ? "  " : " ";
+          }
+          return char;
+        })
+        .join("");
+    },
+  },
 };
 </script>
 
