@@ -2,7 +2,7 @@ const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const admin = require("firebase-admin");
 admin.initializeApp();
 
-exports.vanishTask = onDocumentCreated("tasks/{taskId}", (event) => {
+exports.vanishTask = onDocumentCreated("task/{taskId}", (event) => {
   const task = event.data.data();
   const interval = task.interval * 1000; // ミリ秒変換
   const taskId = event.params.taskId;
@@ -10,7 +10,7 @@ exports.vanishTask = onDocumentCreated("tasks/{taskId}", (event) => {
   const vanishInterval = setInterval(async () => {
     const taskDoc = await admin
       .firestore()
-      .collection("tasks")
+      .collection("task")
       .doc(taskId)
       .get();
     const taskData = taskDoc.data();
@@ -34,7 +34,7 @@ exports.vanishTask = onDocumentCreated("tasks/{taskId}", (event) => {
     const updatedVanishTitle = titleChars.join("");
     const updatedVanishContent = contentChars.join("");
 
-    await admin.firestore().collection("tasks").doc(taskId).update({
+    await admin.firestore().collection("task").doc(taskId).update({
       vanish_title: updatedVanishTitle,
       vanish_content: updatedVanishContent,
     });
@@ -43,7 +43,7 @@ exports.vanishTask = onDocumentCreated("tasks/{taskId}", (event) => {
       updatedVanishTitle.trim() === "" &&
       updatedVanishContent.trim() === ""
     ) {
-      await admin.firestore().collection("tasks").doc(taskId).update({
+      await admin.firestore().collection("task").doc(taskId).update({
         dispFlg: false,
       });
       clearInterval(vanishInterval);

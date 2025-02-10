@@ -16,7 +16,7 @@
             >
               <v-card height="200" class="pa-4 card-container">
                 <v-card-title class="task-view-title">
-                  {{ data.title }}
+                  {{ data.vanish_title }}
                 </v-card-title>
                 <v-card-subtitle class="task-view-deadline">
                   期限：{{ data.selectDate }} {{ data.selectTime }}

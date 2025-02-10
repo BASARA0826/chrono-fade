@@ -21,12 +21,12 @@
         <v-card v-else class="pa-4 task-detail-view-card" outlined>
           <!-- タスクのタイトル -->
           <v-card-title class="task-detail-view-title">
-            {{ task.title }}
+            {{ task.vanish_title }}
           </v-card-title>
 
           <!-- タスクの内容 -->
           <v-card-text class="task-detail-view-content">
-            <p>{{ task.content }}</p>
+            <p>{{ task.vanish_content }}</p>
           </v-card-text>
 
           <!-- タスクの期限 -->
