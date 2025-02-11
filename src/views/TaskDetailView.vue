@@ -21,12 +21,12 @@
         <v-card v-else class="pa-4 task-detail-view-card" outlined>
           <!-- タスクのタイトル -->
           <v-card-title class="task-detail-view-title">
-            {{ displayTitle }}
+            {{ task.vanish_title }}
           </v-card-title>
 
           <!-- タスクの内容 -->
           <v-card-text class="task-detail-view-content">
-            <p>{{ displayContent }}</p>
+            <p>{{ task.vanish_content }}</p>
           </v-card-text>
 
           <!-- タスクの期限 -->
@@ -86,17 +86,6 @@ export default {
     this.formattedDate = this.$route.query.formattedDate;
     this.loading = true;
 
-    firebase
-      .firestore()
-      .collection("users")
-      .doc(this.uid)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          this.featureEnabled = doc.data().featureEnabled;
-        }
-      });
-
     if (this.task_id) {
       const taskRef = firebase
         .firestore()
@@ -118,11 +107,6 @@ export default {
       this.loading = false;
     }, 1000);
   },
-  beforeUnmount() {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-    }
-  },
   data: () => ({
     task_id: "",
     task: {
@@ -133,23 +117,9 @@ export default {
       dispFlg: true,
     },
     formattedDate: "",
-    featureEnabled: true,
     successDialog: false,
     loading: false,
-    unsubscribe: null,
   }),
-  computed: {
-    displayTitle() {
-      return this.featureEnabled && this.task
-        ? this.task.vanish_title
-        : this.task?.title;
-    },
-    displayContent() {
-      return this.featureEnabled && this.task
-        ? this.task.vanish_content
-        : this.task?.content;
-    },
-  },
   methods: {
     async completeTask() {
       const now = new Date().toISOString();

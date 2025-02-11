@@ -33,7 +33,7 @@
             >
               <v-card height="200" class="pa-4 card-container">
                 <v-card-title class="task-view-title">
-                  {{ getDisplayTitle(data) }}
+                  {{ task.title }}
                 </v-card-title>
                 <v-card-subtitle class="task-view-deadline">
                   完了日時：{{ formatDate(data.completedDate) }}
@@ -67,17 +67,6 @@ export default {
       return;
     }
 
-    firebase
-      .firestore()
-      .collection("users")
-      .doc(this.uid)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          this.featureEnabled = doc.data().featureEnabled;
-        }
-      });
-
     const taskRef = firebase
       .firestore()
       .collection("task")
@@ -95,7 +84,6 @@ export default {
   data: () => ({
     tasks: [],
     siteTitle: "ChronoFade",
-    featureEnabled: true,
   }),
   computed: {
     fadedTitle() {
@@ -117,9 +105,6 @@ export default {
       }
       const formattedDate = format(new Date(date), "yyyy/MM/dd HH:mm");
       return formattedDate;
-    },
-    getDisplayTitle(task) {
-      return this.featureEnabled ? task.vanish_title : task.title;
     },
   },
 };
