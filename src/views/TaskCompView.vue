@@ -14,7 +14,7 @@
             <v-card-title class="card-title"
               >思い出せなくなってしまった記録</v-card-title
             >
-            <v-card-text class="card-text">10</v-card-text>
+            <v-card-text class="card-text">{{ memoryCount }}</v-card-text>
           </div>
         </v-card>
 
@@ -81,6 +81,16 @@ export default {
       });
     });
 
+    const memoryRef = firebase
+      .firestore()
+      .collection("task")
+      .where("uid", "==", uid)
+      .where("dispFlg", "==", false);
+
+    memoryRef.onSnapshot((snapshot) => {
+      this.memoryCount = snapshot.size;
+    });
+
     firebase
       .firestore()
       .collection("users")
@@ -101,6 +111,7 @@ export default {
     tasks: [],
     siteTitle: "ChronoFade",
     featureEnabled: true,
+    memoryCount: 0,
   }),
   computed: {
     fadedTitle() {
