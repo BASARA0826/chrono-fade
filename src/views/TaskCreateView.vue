@@ -225,6 +225,7 @@ export default {
           vanish_title: this.title,
           vanish_content: this.content,
           interval: interval,
+          vanishFlg: false,
         });
 
         this.successDialog = true;

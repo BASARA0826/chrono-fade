@@ -59,7 +59,7 @@
       <v-dialog v-model="successDialog" persistent max-width="500">
         <v-card class="popup-card">
           <v-card-title class="popup-title">
-            タスクの作成が完了しました
+            タスクを完了しました
           </v-card-title>
           <v-card-actions class="popup-actions">
             <v-spacer></v-spacer>
