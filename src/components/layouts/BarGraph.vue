@@ -92,13 +92,13 @@ export default {
             .split(":")
             .map(Number);
 
-          const isPastdate =
-            selectDateStr < todayStr ||
+          const isPastDate =
+            new Date(selectDateStr) < today ||
             (selectDateStr === todayStr &&
               (selectHour < currentHour ||
                 (selectHour === currentHour && selectMinute < currentMinute)));
 
-          if (isPastdate) {
+          if (isPastDate) {
             const formattedSelectdate = `${
               new Date(selectDateStr).getMonth() + 1
             }/${new Date(selectDateStr).getDate()}`;
