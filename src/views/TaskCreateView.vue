@@ -115,9 +115,11 @@
           </v-card-title>
           <v-card-actions class="popup-actions">
             <v-spacer></v-spacer>
-            <v-btn class="popup-btn" text @click="redirect"> 戻る </v-btn>
+            <v-btn class="popup-btn" text @click="redirect">
+              タスク作成を続ける
+            </v-btn>
             <v-btn class="popup-btn" text @click="navToTask">
-              タスク一覧へ遷移
+              タスク一覧へ戻る
             </v-btn>
           </v-card-actions>
         </v-card>
