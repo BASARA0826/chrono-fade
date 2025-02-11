@@ -105,6 +105,7 @@
                 text
                 type="success"
                 class="ml-4 success-message config-alert"
+                style="margin-top: 0"
                 v-if="message"
               >
                 {{ message }}
@@ -115,6 +116,7 @@
                 outlined
                 type="error"
                 class="ml-4 error-message config-alert"
+                style="margin-top: 0"
                 v-if="errorMessage"
               >
                 {{ errorMessage }}
