@@ -45,13 +45,15 @@
           </v-card-subtitle>
 
           <!-- 完了ボタン -->
-          <v-card-actions v-if="!task.completedFlg">
-            <v-spacer></v-spacer>
-            <v-btn color="success" dark @click="completeTask">
-              <v-icon left>mdi-check</v-icon>
-              完了
-            </v-btn>
-          </v-card-actions>
+          <v-fade-transition>
+            <v-card-actions v-if="!task.completedFlg && task.dispFlg">
+              <v-spacer></v-spacer>
+              <v-btn color="success" dark @click="completeTask">
+                <v-icon left>mdi-check</v-icon>
+                完了
+              </v-btn>
+            </v-card-actions>
+          </v-fade-transition>
         </v-card>
       </v-container>
 
@@ -85,21 +87,30 @@ export default {
     this.loading = true;
 
     if (this.task_id) {
-      const taskRef = firebase.firestore().collection("task");
-      // 取得したtask_idと同じ値をフィールド内のtask_idにもつドキュメンテーションを取得
-      const snapshot = await taskRef.where("task_id", "==", this.task_id).get();
-      if (!snapshot.empty) {
-        const doc = snapshot.docs[0];
-        this.task = doc.data();
-        this.task.docId = doc.id;
-      } else {
-        console.error("タスクが存在しません");
-      }
+      const taskRef = firebase
+        .firestore()
+        .collection("task")
+        .where("task_id", "==", this.task_id);
+
+      this.unsubscribe = taskRef.onSnapshot((snapshot) => {
+        if (!snapshot.empty) {
+          const doc = snapshot.docs[0];
+          this.task = doc.data();
+          this.task.docId = doc.id;
+        } else {
+          console.error("タスクが存在しません");
+        }
+      });
     }
 
     setTimeout(() => {
       this.loading = false;
     }, 1000);
+  },
+  beforeUnmount() {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
   },
   data: () => ({
     task_id: "",
@@ -108,10 +119,12 @@ export default {
       content: "",
       selectDate: "",
       selectTime: "",
+      dispFlg: true,
     },
     formattedDate: "",
     successDialog: false,
     loading: false,
+    unsubscribe: null,
   }),
   methods: {
     async completeTask() {
