@@ -33,7 +33,7 @@
             >
               <v-card height="200" class="pa-4 card-container">
                 <v-card-title class="task-view-title">
-                  {{ task.title }}
+                  {{ featureEnabled ? data.vanish_title : data.title }}
                 </v-card-title>
                 <v-card-subtitle class="task-view-deadline">
                   完了日時：{{ formatDate(data.completedDate) }}
@@ -80,10 +80,27 @@ export default {
         this.tasks.push(doc.data());
       });
     });
+
+    firebase
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.featureEnabled = doc.data().featureEnabled;
+        } else {
+          console.log("ユーザーデータが見つかりません");
+        }
+      })
+      .catch((error) => {
+        console.error("ユーザーデータの取得に失敗", error);
+      });
   },
   data: () => ({
     tasks: [],
     siteTitle: "ChronoFade",
+    featureEnabled: true,
   }),
   computed: {
     fadedTitle() {

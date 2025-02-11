@@ -21,12 +21,12 @@
         <v-card v-else class="pa-4 task-detail-view-card" outlined>
           <!-- タスクのタイトル -->
           <v-card-title class="task-detail-view-title">
-            {{ task.vanish_title }}
+            {{ featureEnabled ? task.vanish_title : task.title }}
           </v-card-title>
 
           <!-- タスクの内容 -->
           <v-card-text class="task-detail-view-content">
-            <p>{{ task.vanish_content }}</p>
+            <p>{{ featureEnabled ? task.vanish_content : task.content }}</p>
           </v-card-text>
 
           <!-- タスクの期限 -->
@@ -92,7 +92,7 @@ export default {
         .collection("task")
         .where("task_id", "==", this.task_id);
 
-      this.unsubscribe = taskRef.onSnapshot((snapshot) => {
+      taskRef.onSnapshot((snapshot) => {
         if (!snapshot.empty) {
           const doc = snapshot.docs[0];
           this.task = doc.data();
@@ -102,6 +102,25 @@ export default {
         }
       });
     }
+
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const uid = user.uid;
+
+    firebase
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.featureEnabled = doc.data().featureEnabled;
+        } else {
+          console.log("ユーザーデータが見つかりません");
+        }
+      })
+      .catch((error) => {
+        console.error("ユーザーデータの取得に失敗", error);
+      });
 
     setTimeout(() => {
       this.loading = false;
@@ -119,6 +138,7 @@ export default {
     formattedDate: "",
     successDialog: false,
     loading: false,
+    featureEnabled: true,
   }),
   methods: {
     async completeTask() {
