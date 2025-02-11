@@ -21,12 +21,12 @@
         <v-card v-else class="pa-4 task-detail-view-card" outlined>
           <!-- タスクのタイトル -->
           <v-card-title class="task-detail-view-title">
-            {{ task.title }}
+            {{ featureEnabled ? task.vanish_title : task.title }}
           </v-card-title>
 
           <!-- タスクの内容 -->
           <v-card-text class="task-detail-view-content">
-            <p>{{ task.content }}</p>
+            <p>{{ featureEnabled ? task.vanish_content : task.content }}</p>
           </v-card-text>
 
           <!-- タスクの期限 -->
@@ -45,13 +45,15 @@
           </v-card-subtitle>
 
           <!-- 完了ボタン -->
-          <v-card-actions v-if="!task.completedFlg">
-            <v-spacer></v-spacer>
-            <v-btn color="success" dark @click="completeTask">
-              <v-icon left>mdi-check</v-icon>
-              完了
-            </v-btn>
-          </v-card-actions>
+          <v-fade-transition>
+            <v-card-actions v-if="!task.completedFlg && task.dispFlg">
+              <v-spacer></v-spacer>
+              <v-btn color="success" dark @click="completeTask">
+                <v-icon left>mdi-check</v-icon>
+                完了
+              </v-btn>
+            </v-card-actions>
+          </v-fade-transition>
         </v-card>
       </v-container>
 
@@ -59,7 +61,7 @@
       <v-dialog v-model="successDialog" persistent max-width="500">
         <v-card class="popup-card">
           <v-card-title class="popup-title">
-            タスクの作成が完了しました
+            タスクを完了しました
           </v-card-title>
           <v-card-actions class="popup-actions">
             <v-spacer></v-spacer>
@@ -85,17 +87,40 @@ export default {
     this.loading = true;
 
     if (this.task_id) {
-      const taskRef = firebase.firestore().collection("task");
-      // 取得したtask_idと同じ値をフィールド内のtask_idにもつドキュメンテーションを取得
-      const snapshot = await taskRef.where("task_id", "==", this.task_id).get();
-      if (!snapshot.empty) {
-        const doc = snapshot.docs[0];
-        this.task = doc.data();
-        this.task.docId = doc.id;
-      } else {
-        console.error("タスクが存在しません");
-      }
+      const taskRef = firebase
+        .firestore()
+        .collection("task")
+        .where("task_id", "==", this.task_id);
+
+      taskRef.onSnapshot((snapshot) => {
+        if (!snapshot.empty) {
+          const doc = snapshot.docs[0];
+          this.task = doc.data();
+          this.task.docId = doc.id;
+        } else {
+          console.error("タスクが存在しません");
+        }
+      });
     }
+
+    const user = JSON.parse(sessionStorage.getItem("user"));
+    const uid = user.uid;
+
+    firebase
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          this.featureEnabled = doc.data().featureEnabled;
+        } else {
+          console.log("ユーザーデータが見つかりません");
+        }
+      })
+      .catch((error) => {
+        console.error("ユーザーデータの取得に失敗", error);
+      });
 
     setTimeout(() => {
       this.loading = false;
@@ -108,10 +133,12 @@ export default {
       content: "",
       selectDate: "",
       selectTime: "",
+      dispFlg: true,
     },
     formattedDate: "",
     successDialog: false,
     loading: false,
+    featureEnabled: true,
   }),
   methods: {
     async completeTask() {

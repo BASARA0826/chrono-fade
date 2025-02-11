@@ -10,13 +10,13 @@
     <v-main>
       <v-container>
         <v-row>
-          <v-col v-for="(data, index) in tasks" :key="index" cols="4">
+          <v-col v-for="data in filteredTasks" :key="data.task_id" cols="4">
             <router-link
               :to="{ path: '/taskDetail', query: { task_id: data.task_id } }"
             >
               <v-card height="200" class="pa-4 card-container">
                 <v-card-title class="task-view-title">
-                  {{ data.title }}
+                  {{ data.vanish_title }}
                 </v-card-title>
                 <v-card-subtitle class="task-view-deadline">
                   期限：{{ data.selectDate }} {{ data.selectTime }}
@@ -67,6 +67,9 @@ export default {
     siteTitle: "ChronoFade",
   }),
   computed: {
+    filteredTasks() {
+      return this.tasks.filter((task) => task.dispFlg);
+    },
     fadedTitle() {
       return this.siteTitle
         .split("")

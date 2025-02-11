@@ -200,6 +200,17 @@ export default {
         // task_idの生成
         const taskId = firebase.firestore().collection("task").doc().id;
 
+        // 期限の抽出
+        const deadline = new Date(`${this.selectDate}T${this.selectTime}`);
+        const now = new Date();
+        const totalSeconds = (deadline - now) / 1000;
+
+        // タイトルと内容の文字数の合計
+        const totalChars = this.title.length + this.content.length;
+
+        // 1文字消えるのにかかる秒数
+        const interval = totalSeconds / totalChars;
+
         // データ登録
         await firebase.firestore().collection("task").doc(taskId).set({
           task_id: taskId,
@@ -210,6 +221,11 @@ export default {
           uid: uid,
           completedFlg: false,
           completedDate: null,
+          dispFlg: true,
+          vanish_title: this.title,
+          vanish_content: this.content,
+          interval: interval,
+          vanishFlg: false,
         });
 
         this.successDialog = true;
