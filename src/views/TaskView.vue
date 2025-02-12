@@ -12,7 +12,10 @@
         <v-row>
           <v-col v-for="data in filteredTasks" :key="data.task_id" cols="4">
             <router-link
-              :to="{ path: '/taskDetail', query: { task_id: data.task_id } }"
+              :to="{
+                path: '/taskDetail',
+                query: { task_id: data.task_id, prevRoute: 'TaskView' },
+              }"
             >
               <v-card height="200" class="pa-4 card-container">
                 <v-card-title class="task-view-title">

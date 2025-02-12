@@ -21,12 +21,12 @@
         <v-card v-else class="pa-4 task-detail-view-card" outlined>
           <!-- タスクのタイトル -->
           <v-card-title class="task-detail-view-title">
-            {{ featureEnabled ? task.vanish_title : task.title }}
+            {{ shouldShowVanish ? task.vanish_title : task.title }}
           </v-card-title>
 
           <!-- タスクの内容 -->
           <v-card-text class="task-detail-view-content">
-            <p>{{ featureEnabled ? task.vanish_content : task.content }}</p>
+            <p>{{ shouldShowVanish ? task.vanish_content : task.content }}</p>
           </v-card-text>
 
           <!-- タスクの期限 -->
@@ -85,6 +85,7 @@ export default {
     this.task_id = this.$route.query.task_id;
     this.formattedDate = this.$route.query.formattedDate;
     this.loading = true;
+    this.prevRoute = this.$route.query.prevRoute || "";
 
     if (this.task_id) {
       const taskRef = firebase
@@ -139,7 +140,13 @@ export default {
     successDialog: false,
     loading: false,
     featureEnabled: true,
+    prevRoute: "",
   }),
+  computed: {
+    shouldShowVanish() {
+      return this.prevRoute === "TaskView" || this.featureEnabled;
+    },
+  },
   methods: {
     async completeTask() {
       const now = new Date().toISOString();
