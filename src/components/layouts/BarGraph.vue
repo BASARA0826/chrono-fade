@@ -32,36 +32,54 @@ export default {
     return {
       uid: JSON.parse(sessionStorage.getItem("user")).uid,
       taskData: [],
+      chartInstance: null,
     };
   },
   async mounted() {
-    // 現在の日時を含む1週間を取得(グラフの横軸)
-    const today = new Date();
-    const startWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-    const labels = [];
-
-    for (let i = 0; i < 7; i++) {
-      const currentDay = new Date(startWeek);
-      currentDay.setDate(startWeek.getDate() + i);
-      labels.push(`${currentDay.getMonth() + 1}/${currentDay.getDate()}`);
-    }
-
-    // ログインユーザーのタスクデータを取得
-    const taskRef = firebase.firestore().collection("task");
-    const snapshot = await taskRef.where("uid", "==", this.uid).get();
-
-    if (!snapshot.empty) {
-      this.taskData = snapshot.docs.map((doc) => doc.data());
-    }
-
-    // processTaskDataでcompletedTasksとlostTasksにカウントしたデータ数を取得させる
-    const { completedTasks, lostTasks } = this.processTaskData(labels);
-
-    // グラフの描画
-    const ctx = document.getElementById("barChart").getContext("2d");
-    new Chart(ctx, barConfig(labels, completedTasks, lostTasks));
+    this.setupGraph();
+    await this.fetchData(); // 初回データ取得
   },
   methods: {
+    setupGraph() {
+      // グラフの描画
+      const ctx = document.getElementById("barChart").getContext("2d");
+      this.chartInstance = new Chart(ctx, barConfig([], [], []));
+    },
+    fetchData() {
+      // ログインユーザーのタスクを非同期取得
+      const taskRef = firebase
+        .firestore()
+        .collection("task")
+        .where("uid", "==", this.uid);
+
+      this.unsubscribe = taskRef.onSnapshot((snapshot) => {
+        this.taskData = snapshot.docs.map((doc) => doc.data());
+        this.updateGraph();
+      });
+    },
+    updateGraph() {
+      // 現在の日時を含む1週間を取得(グラフの横軸)
+      const today = new Date();
+      const startWeek = new Date(
+        today.setDate(today.getDate() - today.getDay())
+      );
+      const labels = [];
+
+      for (let i = 0; i < 7; i++) {
+        const currentDay = new Date(startWeek);
+        currentDay.setDate(startWeek.getDate() + i);
+        labels.push(`${currentDay.getMonth() + 1}/${currentDay.getDate()}`);
+      }
+
+      // processTaskDataでcompletedTasksとlostTasksにカウントしたデータ数を取得させる
+      const { completedTasks, lostTasks } = this.processTaskData(labels);
+
+      // グラフのデータを更新
+      this.chartInstance.data.labels = labels;
+      this.chartInstance.data.datasets[0].data = completedTasks;
+      this.chartInstance.data.datasets[1].data = lostTasks;
+      this.chartInstance.update(); // グラフを再描画
+    },
     processTaskData(labels) {
       // 1週間分の完了タスク数と消失タスク数をカウントするための配列を用意
       const completedTasks = Array(7).fill(0);
@@ -92,6 +110,11 @@ export default {
 
       return { completedTasks, lostTasks };
     },
+  },
+  beforeDestroy() {
+    if (this.unsubscribe) {
+      this.unsubscribe(); // リスナー解除
+    }
   },
 };
 </script>

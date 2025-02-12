@@ -23,6 +23,7 @@ export const barConfig = (labels, completedTasks, lostTasks) => {
       ],
     },
     options: {
+      indexAxis: "x",
       scales: {
         y: {
           beginAtZero: true,
@@ -30,6 +31,13 @@ export const barConfig = (labels, completedTasks, lostTasks) => {
           ticks: {
             stepSize: 5,
           },
+        },
+      },
+      animation: {
+        x: false,
+        y: {
+          duration: 1000,
+          easing: "easeOutQuart",
         },
       },
       plugins: {
