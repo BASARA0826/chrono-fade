@@ -165,8 +165,4 @@ export default {
   margin-left: 16px;
   padding-bottom: 0;
 }
-
-.skeleton-bar {
-  margin: 30px, 0;
-}
 </style>
