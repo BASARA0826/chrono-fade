@@ -32,47 +32,58 @@ export default {
     return {
       uid: JSON.parse(sessionStorage.getItem("user")).uid,
       taskData: [],
+      chartInstance: null,
     };
   },
   async mounted() {
-    // 現在の日時を含む1週間を取得
-    const today = new Date();
-    const startWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-    const labels = [];
-
-    for (let i = 0; i < 7; i++) {
-      const currentDay = new Date(startWeek);
-      currentDay.setDate(startWeek.getDate() + i);
-      labels.push(`${currentDay.getMonth() + 1}/${currentDay.getDate()}`);
-    }
-
-    const taskRef = firebase.firestore().collection("task");
-    const snapshot = await taskRef.where("uid", "==", this.uid).get();
-
-    if (!snapshot.empty) {
-      this.taskData = snapshot.docs.map((doc) => doc.data());
-    }
-
-    console.log("taskData:", this.taskData);
-
-    const { completedTasks, lostTasks } = this.processTaskData(labels);
-
-    console.log("completedTasks:", completedTasks);
-    console.log("lostTasks:", lostTasks);
-
-    // グラフの描画
-    const ctx = document.getElementById("barChart").getContext("2d");
-    new Chart(ctx, barConfig(labels, completedTasks, lostTasks));
+    this.setupGraph();
+    await this.fetchData(); // 初回データ取得
   },
   methods: {
+    setupGraph() {
+      // グラフの描画
+      const ctx = document.getElementById("barChart").getContext("2d");
+      this.chartInstance = new Chart(ctx, barConfig([], [], []));
+    },
+    fetchData() {
+      // ログインユーザーのタスクを非同期取得
+      const taskRef = firebase
+        .firestore()
+        .collection("task")
+        .where("uid", "==", this.uid);
+
+      this.unsubscribe = taskRef.onSnapshot((snapshot) => {
+        this.taskData = snapshot.docs.map((doc) => doc.data());
+        this.updateGraph();
+      });
+    },
+    updateGraph() {
+      // 現在の日時を含む1週間を取得(グラフの横軸)
+      const today = new Date();
+      const startWeek = new Date(
+        today.setDate(today.getDate() - today.getDay())
+      );
+      const labels = [];
+
+      for (let i = 0; i < 7; i++) {
+        const currentDay = new Date(startWeek);
+        currentDay.setDate(startWeek.getDate() + i);
+        labels.push(`${currentDay.getMonth() + 1}/${currentDay.getDate()}`);
+      }
+
+      // processTaskDataでcompletedTasksとlostTasksにカウントしたデータ数を取得させる
+      const { completedTasks, lostTasks } = this.processTaskData(labels);
+
+      // グラフのデータを更新
+      this.chartInstance.data.labels = labels;
+      this.chartInstance.data.datasets[0].data = completedTasks;
+      this.chartInstance.data.datasets[1].data = lostTasks;
+      this.chartInstance.update(); // グラフを再描画
+    },
     processTaskData(labels) {
+      // 1週間分の完了タスク数と消失タスク数をカウントするための配列を用意
       const completedTasks = Array(7).fill(0);
       const lostTasks = Array(7).fill(0);
-
-      const today = new Date();
-      const todayStr = today.toISOString().split("T")[0];
-      const currentHour = today.getHours();
-      const currentMinute = today.getMinutes();
 
       this.taskData.forEach((task) => {
         if (task.completedFlg && task.completedDate) {
@@ -81,36 +92,29 @@ export default {
           const formattedCompDate = `${
             completedDate.getMonth() + 1
           }/${completedDate.getDate()}`;
-          console.log("formattedCompDate:", formattedCompDate);
+
+          // ラベルの日付と一致する場合、completedTasksの該当インデックスに+1
           const index = labels.indexOf(formattedCompDate);
           if (index !== -1) completedTasks[index]++;
-        } else if (!task.completedFlg && task.selectDate) {
-          // 消失タスク: selectDateが現在の日付以下 & ラベルの日付と一致
-          const selectDateStr = task.selectDate;
-          const selectTimeStr = task.selectTime || "00:00";
-          const [selectHour, selectMinute] = selectTimeStr
-            .split(":")
-            .map(Number);
+        } else if (!task.completedFlg && task.dispFlg === false) {
+          // 消失タスク: dispFlgがfalse & ラベルの日付と一致
+          const formattedSelectDate = `${
+            new Date(task.selectDate).getMonth() + 1
+          }/${new Date(task.selectDate).getDate()}`;
 
-          const isPastdate =
-            selectDateStr < todayStr ||
-            (selectDateStr === todayStr &&
-              (selectHour < currentHour ||
-                (selectHour === currentHour && selectMinute < currentMinute)));
-
-          if (isPastdate) {
-            const formattedSelectdate = `${
-              new Date(selectDateStr).getMonth() + 1
-            }/${new Date(selectDateStr).getDate()}`;
-            console.log("formattedSelectdate:", formattedSelectdate);
-            const index = labels.indexOf(formattedSelectdate);
-            if (index !== -1) lostTasks[index]++;
-          }
+          // ラベルの日付と一致する場合、lostTasksの該当インデックスに+1
+          const index = labels.indexOf(formattedSelectDate);
+          if (index !== -1) lostTasks[index]++;
         }
       });
 
       return { completedTasks, lostTasks };
     },
+  },
+  beforeDestroy() {
+    if (this.unsubscribe) {
+      this.unsubscribe(); // リスナー解除
+    }
   },
 };
 </script>
