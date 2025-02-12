@@ -35,7 +35,7 @@ export default {
     };
   },
   async mounted() {
-    // 現在の日時を含む1週間を取得
+    // 現在の日時を含む1週間を取得(グラフの横軸)
     const today = new Date();
     const startWeek = new Date(today.setDate(today.getDate() - today.getDay()));
     const labels = [];
@@ -46,6 +46,7 @@ export default {
       labels.push(`${currentDay.getMonth() + 1}/${currentDay.getDate()}`);
     }
 
+    // ログインユーザーのタスクデータを取得
     const taskRef = firebase.firestore().collection("task");
     const snapshot = await taskRef.where("uid", "==", this.uid).get();
 
@@ -53,12 +54,8 @@ export default {
       this.taskData = snapshot.docs.map((doc) => doc.data());
     }
 
-    console.log("taskData:", this.taskData);
-
+    // processTaskDataでcompletedTasksとlostTasksにカウントしたデータ数を取得させる
     const { completedTasks, lostTasks } = this.processTaskData(labels);
-
-    console.log("completedTasks:", completedTasks);
-    console.log("lostTasks:", lostTasks);
 
     // グラフの描画
     const ctx = document.getElementById("barChart").getContext("2d");
@@ -66,13 +63,9 @@ export default {
   },
   methods: {
     processTaskData(labels) {
+      // 1週間分の完了タスク数と消失タスク数をカウントするための配列を用意
       const completedTasks = Array(7).fill(0);
       const lostTasks = Array(7).fill(0);
-
-      const today = new Date();
-      const todayStr = today.toISOString().split("T")[0];
-      const currentHour = today.getHours();
-      const currentMinute = today.getMinutes();
 
       this.taskData.forEach((task) => {
         if (task.completedFlg && task.completedDate) {
@@ -81,31 +74,19 @@ export default {
           const formattedCompDate = `${
             completedDate.getMonth() + 1
           }/${completedDate.getDate()}`;
-          console.log("formattedCompDate:", formattedCompDate);
+
+          // ラベルの日付と一致する場合、completedTasksの該当インデックスに+1
           const index = labels.indexOf(formattedCompDate);
           if (index !== -1) completedTasks[index]++;
-        } else if (!task.completedFlg && task.selectDate) {
-          // 消失タスク: selectDateが現在の日付以下 & ラベルの日付と一致
-          const selectDateStr = task.selectDate;
-          const selectTimeStr = task.selectTime || "00:00";
-          const [selectHour, selectMinute] = selectTimeStr
-            .split(":")
-            .map(Number);
+        } else if (!task.completedFlg && task.dispFlg === false) {
+          // 消失タスク: dispFlgがfalse & ラベルの日付と一致
+          const formattedSelectDate = `${
+            new Date(task.selectDate).getMonth() + 1
+          }/${new Date(task.selectDate).getDate()}`;
 
-          const isPastDate =
-            new Date(selectDateStr) < today ||
-            (selectDateStr === todayStr &&
-              (selectHour < currentHour ||
-                (selectHour === currentHour && selectMinute < currentMinute)));
-
-          if (isPastDate) {
-            const formattedSelectdate = `${
-              new Date(selectDateStr).getMonth() + 1
-            }/${new Date(selectDateStr).getDate()}`;
-            console.log("formattedSelectdate:", formattedSelectdate);
-            const index = labels.indexOf(formattedSelectdate);
-            if (index !== -1) lostTasks[index]++;
-          }
+          // ラベルの日付と一致する場合、lostTasksの該当インデックスに+1
+          const index = labels.indexOf(formattedSelectDate);
+          if (index !== -1) lostTasks[index]++;
         }
       });
 
