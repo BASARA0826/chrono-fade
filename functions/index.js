@@ -6,37 +6,45 @@ const admin = require("firebase-admin");
 admin.initializeApp();
 
 // タスク作成時に関数呼び出し
-exports.vanishTask = onDocumentCreated("task/{taskId}", async (event) => {
-  const task = event.data.data();
-  const taskId = event.params.taskId;
+exports.vanishTask = onDocumentCreated(
+  {
+    document: "task/{taskId}",
+    timeoutSeconds: 540,
+  },
+  async (event) => {
+    const task = event.data.data();
+    const taskId = event.params.taskId;
 
-  if (!task) return;
+    if (!task) return;
 
-  // 初回処理
-  await processVanish(taskId);
-}).runWith({
-  timeoutSeconds: 540,
-});
-
-// タスク更新時に関数呼び出し
-exports.updateVanishTask = onDocumentUpdated("task/{taskId}", async (event) => {
-  const beforeTask = event.data.before.data();
-  const afterTask = event.data.after.data();
-  const taskId = event.params.taskId;
-
-  if (!afterTask || afterTask.completedFlg) return;
-
-  // vanish_titleかvanish_contentが変更された場合に関数呼び出し
-  if (
-    beforeTask.vanish_title !== afterTask.vanish_title ||
-    beforeTask.vanish_content !== afterTask.vanish_content ||
-    beforeTask.intervalList2 !== afterTask.intervalList2
-  ) {
+    // 初回処理
     await processVanish(taskId);
   }
-}).runWith({
-  timeoutSeconds: 540,
-});
+);
+
+// タスク更新時に関数呼び出し
+exports.updateVanishTask = onDocumentUpdated(
+  {
+    document: "task/{taskId}",
+    timeoutSeconds: 540,
+  },
+  async (event) => {
+    const beforeTask = event.data.before.data();
+    const afterTask = event.data.after.data();
+    const taskId = event.params.taskId;
+
+    if (!afterTask || afterTask.completedFlg) return;
+
+    // vanish_titleかvanish_contentが変更された場合に関数呼び出し
+    if (
+      beforeTask.vanish_title !== afterTask.vanish_title ||
+      beforeTask.vanish_content !== afterTask.vanish_content ||
+      beforeTask.intervalList2 !== afterTask.intervalList2
+    ) {
+      await processVanish(taskId);
+    }
+  }
+);
 
 // 文字消去処理
 async function processVanish(taskId) {
