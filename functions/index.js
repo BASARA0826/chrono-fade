@@ -26,6 +26,7 @@ exports.vanishTask = onDocumentCreated(
 exports.updateVanishTask = onDocumentUpdated(
   {
     document: "task/{taskId}",
+    fieldFilters: ["intervalList2"],
     timeoutSeconds: 540,
   },
   async (event) => {
@@ -35,12 +36,8 @@ exports.updateVanishTask = onDocumentUpdated(
 
     if (!afterTask || afterTask.completedFlg) return;
 
-    // vanish_titleかvanish_contentが変更された場合に関数呼び出し
-    if (
-      beforeTask.vanish_title !== afterTask.vanish_title ||
-      beforeTask.vanish_content !== afterTask.vanish_content ||
-      beforeTask.intervalList2 !== afterTask.intervalList2
-    ) {
+    // intervalList2が更新された場合に関数呼び出し
+    if (beforeTask.intervalList2 !== afterTask.intervalList2) {
       await processVanish(taskId);
     }
   }
@@ -103,17 +100,17 @@ async function processVanish(taskId) {
       vanishFlg: false,
     });
 
-    // dispFlgがtrueならintervalList2内のデータを復活させてonDocumentUpdatedを実行させるようにする
-    if (taskData.dispFlg) {
-      await taskDocRef.update({ intervalList2: [...taskData.intervalList] });
-    }
-
     // vanish_titleとvanish_contentが全て空白の場合、dispFlgをfalseにする
     if (
       titleChars.every((char) => char === "　") &&
       contentChars.every((char) => char === "　")
     ) {
       await taskDocRef.update({ dispFlg: false });
+    }
+
+    // dispFlgがtrueならintervalList2内のデータを復活させてonDocumentUpdatedを実行させるようにする
+    if (taskData.dispFlg) {
+      await taskDocRef.update({ intervalList2: [...taskData.intervalList] });
     }
   }
 }
