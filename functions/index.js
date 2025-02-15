@@ -46,78 +46,81 @@ exports.updateVanishTask = onDocumentUpdated(
 // 文字消去処理
 async function processVanish(taskId) {
   const taskDocRef = admin.firestore().collection("task").doc(taskId);
-  const taskDoc = await taskDocRef.get();
-  const taskData = taskDoc.data();
-  let localIntervalList = [...taskData.intervalList2];
 
-  // タスク完了時に処理終了
-  if (!taskData || taskData.completedFlg) return;
+  await admin.firestore().runTransaction(async (transaction) => {
+    const taskDoc = await transaction.get(taskDocRef);
+    const taskData = taskDoc.data();
+    let localIntervalList = [...taskData.intervalList2];
 
-  // vanishFlgがtrueのとき処理しない(並列呼び出し防止)
-  if (taskData.vanishFlg) return;
+    // タスク完了時に処理終了
+    if (taskData.completedFlg) return;
 
-  // vanishFlgをtrueにして、処理開始
-  await taskDocRef.update({ vanishFlg: true });
+    // vanishFlgがtrueのとき処理しない
+    if (taskData.vanishFlg) return;
 
-  if (localIntervalList.length > 0) {
-    const waitTime = localIntervalList.shift() * 1000;
-    // 指定時間待機
-    await new Promise((resolve) => setTimeout(resolve, waitTime));
+    // vanishFlgをtrueにして、処理開始
+    transaction.update(taskDocRef, { vanishFlg: true });
 
-    // localIntervalListが空ならintervalList2を更新しない
-    if (localIntervalList.length !== 0) {
-      await taskDocRef.update({
-        intervalList2: localIntervalList,
-        vanishFlg: false,
+    if (localIntervalList.length > 0) {
+      const waitTime = localIntervalList.shift() * 1000;
+      // 指定時間待機
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+
+      // localIntervalListが空ならintervalList2を更新しない
+      if (localIntervalList.length !== 0) {
+        transaction.update(taskDocRef, {
+          intervalList2: localIntervalList,
+          vanishFlg: false,
+        });
+        return;
+      }
+    }
+
+    if (localIntervalList.length === 0) {
+      let titleChars = taskData.vanish_title.split("");
+      let contentChars = taskData.vanish_content.split("");
+      let allChars = [...titleChars, ...contentChars];
+
+      // vanish_titleとvanish_contentが全て空白の場合、dispFlgをfalseにして処理終了
+      if (allChars.every((char) => char === "　")) {
+        transaction.update(taskDocRef, { dispFlg: false, vanishFlg: false });
+        return;
+      }
+
+      // ランダムに1文字を空白にする(全角スペースの場合は再探索)
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * allChars.length);
+      } while (allChars[randomIndex] === "　");
+
+      if (randomIndex < titleChars.length) {
+        titleChars[randomIndex] = "　";
+      } else {
+        contentChars[randomIndex - titleChars.length] = "　";
+      }
+
+      // 更新
+      transaction.update(taskDocRef, {
+        vanish_title: titleChars.join(""),
+        vanish_content: contentChars.join(""),
       });
-      return;
+
+      // vanish_titleとvanish_contentが全て空白の場合、dispFlgをfalseにする
+      if (
+        titleChars.every((char) => char === "　") &&
+        contentChars.every((char) => char === "　")
+      ) {
+        transaction.update(taskDocRef, { dispFlg: false, vanishFlg: false });
+        return;
+      }
+
+      // dispFlgがtrueならintervalList2内のデータを復活させてonDocumentUpdatedを実行させるようにする
+      if (taskData.dispFlg) {
+        transaction.update(taskDocRef, {
+          intervalList2: [...taskData.intervalList],
+          vanishFlg: false,
+        });
+      }
     }
-  }
-
-  if (localIntervalList.length === 0) {
-    let titleChars = taskData.vanish_title.split("");
-    let contentChars = taskData.vanish_content.split("");
-    let allChars = [...titleChars, ...contentChars];
-
-    // vanish_titleとvanish_contentが全て空白の場合、dispFlgをfalseにして処理終了
-    if (allChars.every((char) => char === "　")) {
-      await taskDocRef.update({ dispFlg: false, vanishFlg: false });
-      return;
-    }
-
-    // ランダムに1文字を空白にする(全角スペースの場合は再探索)
-    let randomIndex;
-    do {
-      randomIndex = Math.floor(Math.random() * allChars.length);
-    } while (allChars[randomIndex] === "　");
-
-    if (randomIndex < titleChars.length) {
-      titleChars[randomIndex] = "　";
-    } else {
-      contentChars[randomIndex - titleChars.length] = "　";
-    }
-
-    // 更新
-    await taskDocRef.update({
-      vanish_title: titleChars.join(""),
-      vanish_content: contentChars.join(""),
-    });
-
-    // vanish_titleとvanish_contentが全て空白の場合、dispFlgをfalseにする
-    if (
-      titleChars.every((char) => char === "　") &&
-      contentChars.every((char) => char === "　")
-    ) {
-      await taskDocRef.update({ dispFlg: false, vanishFlg: false });
-      return;
-    }
-
-    // dispFlgがtrueならintervalList2内のデータを復活させてonDocumentUpdatedを実行させるようにする
-    if (taskData.dispFlg) {
-      await taskDocRef.update({
-        intervalList2: [...taskData.intervalList],
-        vanishFlg: false,
-      });
-    }
-  }
+  });
 }
