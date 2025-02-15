@@ -26,7 +26,7 @@ exports.vanishTask = onDocumentCreated(
 exports.updateVanishTask = onDocumentUpdated(
   {
     document: "task/{taskId}",
-    fieldFilters: ["intervalList2"],
+    fieldFilters: ["intervalList2", "completedFlg"],
     timeoutSeconds: 540,
   },
   async (event) => {
@@ -56,6 +56,9 @@ async function processVanish(taskId) {
   // vanishFlgがtrueのとき処理しない(並列呼び出し防止)
   if (taskData.vanishFlg) return;
 
+  // vanishFlgをtrueにして、処理開始
+  await taskDocRef.update({ vanishFlg: true });
+
   if (localIntervalList.length > 0) {
     const waitTime = localIntervalList.shift() * 1000;
     // 指定時間待機
@@ -63,14 +66,15 @@ async function processVanish(taskId) {
 
     // localIntervalListが空ならintervalList2を更新しない
     if (localIntervalList.length !== 0) {
-      await taskDocRef.update({ intervalList2: localIntervalList });
+      await taskDocRef.update({
+        intervalList2: localIntervalList,
+        vanishFlg: false,
+      });
+      return;
     }
   }
 
   if (localIntervalList.length === 0) {
-    // vanishFlgをtrueにして、処理開始
-    await taskDocRef.update({ vanishFlg: true });
-
     let titleChars = taskData.vanish_title.split("");
     let contentChars = taskData.vanish_content.split("");
     let allChars = [...titleChars, ...contentChars];
@@ -97,7 +101,6 @@ async function processVanish(taskId) {
     await taskDocRef.update({
       vanish_title: titleChars.join(""),
       vanish_content: contentChars.join(""),
-      vanishFlg: false,
     });
 
     // vanish_titleとvanish_contentが全て空白の場合、dispFlgをfalseにする
@@ -105,12 +108,16 @@ async function processVanish(taskId) {
       titleChars.every((char) => char === "　") &&
       contentChars.every((char) => char === "　")
     ) {
-      await taskDocRef.update({ dispFlg: false });
+      await taskDocRef.update({ dispFlg: false, vanishFlg: false });
+      return;
     }
 
     // dispFlgがtrueならintervalList2内のデータを復活させてonDocumentUpdatedを実行させるようにする
     if (taskData.dispFlg) {
-      await taskDocRef.update({ intervalList2: [...taskData.intervalList] });
+      await taskDocRef.update({
+        intervalList2: [...taskData.intervalList],
+        vanishFlg: false,
+      });
     }
   }
 }
