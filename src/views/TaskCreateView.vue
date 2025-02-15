@@ -213,20 +213,29 @@ export default {
         // 1文字消えるのにかかる秒数
         const interval = totalSeconds / totalChars;
 
+        // intervalListを作成(タイムアウトしないように500秒分割)
+        let intervalList = [];
+        let remainingTime = interval;
+        while (remainingTime > 0) {
+          intervalList.push(Math.min(500, remainingTime));
+          remainingTime -= 500;
+        }
+
         // データ登録
         await firebase.firestore().collection("task").doc(taskId).set({
+          uid: uid,
           task_id: taskId,
           title: this.title,
           content: this.content,
-          selectDate: this.selectDate,
-          selectTime: this.selectTime,
-          uid: uid,
-          completedFlg: false,
-          completedDate: null,
-          dispFlg: true,
           vanish_title: this.title,
           vanish_content: this.content,
-          interval: interval,
+          selectDate: this.selectDate,
+          selectTime: this.selectTime,
+          completedFlg: false,
+          completedDate: null,
+          intervalList: intervalList,
+          intervalList2: intervalList,
+          dispFlg: true,
           vanishFlg: false,
         });
 
