@@ -69,6 +69,7 @@
                   class="task-create-view-selectTime"
                   v-model="selectTime"
                   scrollable
+                  format="24hr"
                   :disabled="!selectDate"
                   :min="minTime"
                 ></v-time-picker>
