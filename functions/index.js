@@ -30,8 +30,8 @@ let updateCallCount = {};
 exports.updateVanishTask = onDocumentUpdated(
   {
     document: "task/{taskId}",
-    timeoutSeconds: 540,
-    maxInstances: 1,
+    timeoutSeconds: 540, // タイムアウト時間を最大値に設定
+    maxInstances: 1, // 最大インスタンス数を1に設定 → 並列処理防止
   },
   async (event) => {
     const beforeTask = event.data.before.data();
@@ -48,9 +48,11 @@ exports.updateVanishTask = onDocumentUpdated(
       JSON.stringify(afterTask.intervalList2)
     );
 
+    // コンソール表示用にonDocumentUpdatedが何回呼び出されたかのカウント
     if (!updateCallCount[taskId]) updateCallCount[taskId] = 0;
     updateCallCount[taskId]++;
 
+    // completedFlgがtrueなら処理終了
     if (beforeTask.completedFlg || afterTask.completedFlg) return;
 
     // vanishFlgがfalseのときだけtrueにしてprocessVanishを呼び出す
@@ -74,18 +76,22 @@ exports.updateVanishTask = onDocumentUpdated(
 async function processVanish(taskId, source) {
   console.log(`processVanish Started Called from ${source}`);
   const taskDocRef = admin.firestore().collection("task").doc(taskId);
-  const taskDoc = await taskDocRef.get();
-  const taskData = taskDoc.data();
+  let taskDoc = await taskDocRef.get();
+  let taskData = taskDoc.data();
   let localIntervalList = [...taskData.intervalList2];
-
-  // タスク完了時に処理終了
-  if (taskData.completedFlg) return;
 
   if (localIntervalList.length > 0) {
     const waitTime = localIntervalList.shift() * 1000;
     // 指定時間待機
     console.log(`waiting for ${waitTime} ms`);
     await new Promise((resolve) => setTimeout(resolve, waitTime));
+
+    // 処理待ち中にcompletedFlgがtrueになっている可能性があるため、再度taskDataを取得
+    taskDoc = await taskDocRef.get();
+    taskData = taskDoc.data();
+
+    // タスク完了時に処理終了
+    if (taskData.completedFlg) return;
 
     // localIntervalListが空ならintervalList2を更新しない
     if (localIntervalList.length !== 0) {
