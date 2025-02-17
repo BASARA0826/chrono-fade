@@ -63,12 +63,12 @@
                   v-model="selectDate"
                   show-adjacent-months
                   :min="minDate"
-                  @input="handleDateChange"
                 ></v-date-picker>
                 <v-time-picker
                   class="task-create-view-selectTime"
                   v-model="selectTime"
                   scrollable
+                  format="24hr"
                   :disabled="!selectDate"
                   :min="minTime"
                 ></v-time-picker>
@@ -144,6 +144,11 @@ export default {
     minDate: new Date().toISOString().substr(0, 10),
     minTime: null,
   }),
+  mounted() {
+    setInterval(() => {
+      this.minDate = new Date().toISOString().substr(0, 10);
+    }, 60000);
+  },
   computed: {
     invalid() {
       if (!this.title || !this.content || !this.deadline) {
@@ -152,10 +157,10 @@ export default {
       return false;
     },
   },
-  methods: {
-    handleDateChange() {
+  watch: {
+    selectDate(newDate) {
       const today = new Date().toISOString().substr(0, 10);
-      if (this.selectDate === today) {
+      if (newDate === today) {
         const now = new Date();
         this.minTime =
           now.getHours().toString().padStart(2, "0") +
@@ -165,9 +170,12 @@ export default {
         this.minTime = null;
       }
     },
+  },
+  methods: {
     saveDeadline() {
       if (this.selectDate && this.selectTime) {
         const now = new Date();
+        now.setSeconds(0, 0);
         const selectedDateTime = new Date(
           `${this.selectDate}T${this.selectTime}:00`
         );
