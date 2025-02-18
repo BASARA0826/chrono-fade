@@ -34,10 +34,10 @@ export const barConfig = (labels, completedTasks, lostTasks) => {
         },
       },
       animation: {
-        x: false,
+        x: { duration: 0 },
         y: {
           duration: 1000,
-          easing: "easeOutQuart",
+          easing: "linear",
         },
       },
       plugins: {
