@@ -15,14 +15,21 @@
           <v-card-title>アカウント画像</v-card-title>
           <v-card-text class="text-center">
             <v-avatar size="256">
-              <v-icon size="256"> mdi-account-circle </v-icon>
+              <input
+                type="file"
+                ref="fileInput"
+                accept="image/jpeg, image/jpg, image/png"
+                style="display: none"
+                @change="updateIcon"
+              />
+
+              <v-icon size="256" @click="changeIcon" v-if="!photoUrl">
+                mdi-account-circle
+              </v-icon>
+
+              <img :src="photoUrl" @click="changeIcon" v-if="photoUrl" />
             </v-avatar>
           </v-card-text>
-          <v-card-actions class="justify-center mb-4">
-            <v-btn color="primary" @click="changeAccountImage">
-              画像を変更
-            </v-btn>
-          </v-card-actions>
 
           <!-- ユーザー名の編集 -->
           <v-divider></v-divider>
@@ -133,6 +140,10 @@
 import firebase from "@/firebase/firebase";
 
 export default {
+  mounted() {
+    this.auth = JSON.parse(sessionStorage.getItem("user"));
+    this.photoUrl = this.auth?.photoURL || firebase.auth().currentUser.photoURL;
+  },
   created() {
     const uid = firebase.auth().currentUser.uid;
 
@@ -152,6 +163,10 @@ export default {
           this.initialUsername = userData.username;
           this.initialEmail = userData.email;
           this.initialFeatureEnabled = userData.featureEnabled;
+
+          if (!this.auth?.photoURL && userData.photoURL) {
+            this.photoUrl = userData.photoURL;
+          }
         } else {
           console.log("ユーザーデータが見つかりません");
         }
@@ -182,6 +197,9 @@ export default {
     ],
     message: "",
     errorMessage: "",
+    auth: null,
+    photoUrl: "",
+    newPhotoUrl: "",
   }),
   computed: {
     isValid() {
@@ -214,8 +232,23 @@ export default {
     togglePasswordNew() {
       this.showPasswordNew = !this.showPasswordNew;
     },
-    changeAccountImage() {
-      alert("アカウント画像を変更します！");
+    changeIcon() {
+      this.$refs.fileInput.click();
+    },
+    updateIcon() {
+      const file = this.$refs.fileInput.files[0];
+      const filePath = `user/${file.name}`;
+
+      firebase
+        .storage()
+        .ref()
+        .child(filePath)
+        .put(file)
+        .then(async (snapshot) => {
+          const photoUrl = await snapshot.ref.getDownloadURL();
+          this.newPhotoUrl = photoUrl;
+          this.photoUrl = photoUrl;
+        });
     },
     async saveChanges() {
       const user = firebase.auth().currentUser;
@@ -239,6 +272,18 @@ export default {
       }
 
       try {
+        // アカウント画像の変更
+        if (this.newPhotoUrl) {
+          await user.updateProfile({ photoURL: this.newPhotoUrl });
+          await firebase.firestore().collection("users").doc(uid).update({
+            photoURL: this.newPhotoUrl,
+          });
+          auth.photoURL = this.newPhotoUrl;
+          sessionStorage.setItem("user", JSON.stringify(auth));
+          this.photoUrl = this.newPhotoUrl;
+          this.newPhotoUrl = "";
+        }
+
         // Firebase Authenticationのユーザーデータを更新
         if (user.email !== this.email) {
           await user.updateEmail(this.email);
@@ -258,6 +303,7 @@ export default {
         this.initialEmail = this.email;
         this.initialFeatureEnabled = this.featureEnabled;
 
+        auth.photoURL = this.photoUrl;
         auth.displayName = this.username;
         auth.email = this.email;
         if (this.password) {
@@ -284,6 +330,7 @@ export default {
       this.confirmPassword = "";
       this.showPassword = false;
       this.featureEnabled = this.initialFeatureEnabled;
+      this.newPhotoUrl = "";
     },
     clearMessage() {
       setTimeout(() => {

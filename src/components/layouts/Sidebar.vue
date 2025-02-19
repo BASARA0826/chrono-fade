@@ -2,7 +2,8 @@
   <v-navigation-drawer v-model="drawer" app>
     <v-sheet color="grey lighten-4" class="pa-4">
       <v-avatar size="80">
-        <v-icon size="80"> mdi-account-circle </v-icon>
+        <v-icon size="80" v-if="!photoUrl"> mdi-account-circle </v-icon>
+        <img :src="photoUrl" v-if="photoUrl" />
       </v-avatar>
 
       <div class="username">{{ auth && auth.displayName }}</div>
@@ -57,10 +58,12 @@ export default {
       ["mdi-account-edit-outline", "アカウント設定", "/config"],
     ],
     auth: null,
+    photoUrl: "",
   }),
   methods: {
     updateAuth() {
       this.auth = JSON.parse(sessionStorage.getItem("user"));
+      this.photoUrl = this.auth.photoURL;
     },
     logout() {
       firebase

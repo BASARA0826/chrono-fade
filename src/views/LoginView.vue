@@ -105,6 +105,7 @@ export default {
                   email: userData.email || user.email,
                   password: this.password,
                   uid: userData.uid || user.uid,
+                  photoURL: userData.photoURL,
                 };
                 sessionStorage.setItem("user", JSON.stringify(auth));
 
