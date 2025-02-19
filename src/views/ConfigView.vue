@@ -27,9 +27,17 @@
                 mdi-account-circle
               </v-icon>
 
-              <img :src="photoUrl" @click="changeIcon" v-if="photoUrl" />
+              <img
+                :src="photoUrl"
+                class="userIcon"
+                @click="changeIcon"
+                v-if="photoUrl"
+              />
             </v-avatar>
           </v-card-text>
+          <v-card-actions class="justify-center mb-4">
+            <v-btn color="primary"> 画像の初期化 </v-btn>
+          </v-card-actions>
 
           <!-- ユーザー名の編集 -->
           <v-divider></v-divider>
@@ -358,6 +366,10 @@ export default {
   display: flex;
   align-items: center;
   max-width: fit-content;
+}
+
+.userIcon {
+  cursor: pointer;
 }
 
 .fade-enter-active,
