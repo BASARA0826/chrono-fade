@@ -218,7 +218,9 @@ export default {
         this.nowPassword !== "" ||
         this.password !== "" ||
         this.confirmPassword !== "" ||
-        this.featureEnabled !== this.initialFeatureEnabled
+        this.featureEnabled !== this.initialFeatureEnabled ||
+        this.newPhotoUrl ||
+        this.photoUrl !== (this.auth?.photoURL || "")
       ) {
         return false;
       }
