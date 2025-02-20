@@ -3,7 +3,7 @@
     <v-sheet color="grey lighten-4" class="pa-4">
       <v-avatar size="80">
         <v-icon size="80" v-if="!photoUrl"> mdi-account-circle </v-icon>
-        <img :src="photoUrl" v-if="photoUrl" />
+        <img :src="photoUrl" style="object-fit: cover" v-if="photoUrl" />
       </v-avatar>
 
       <div class="username">{{ auth && auth.displayName }}</div>

@@ -36,7 +36,7 @@
             </v-avatar>
           </v-card-text>
           <v-card-actions class="justify-center mb-4">
-            <v-btn color="primary"> 画像の初期化 </v-btn>
+            <v-btn color="primary" @click="resetPhoto"> 画像の初期化 </v-btn>
           </v-card-actions>
 
           <!-- ユーザー名の編集 -->
@@ -151,6 +151,7 @@ export default {
   mounted() {
     this.auth = JSON.parse(sessionStorage.getItem("user"));
     this.photoUrl = this.auth?.photoURL || firebase.auth().currentUser.photoURL;
+    this.initialPhotoUrl = this.photoUrl;
   },
   created() {
     const uid = firebase.auth().currentUser.uid;
@@ -174,6 +175,7 @@ export default {
 
           if (!this.auth?.photoURL && userData.photoURL) {
             this.photoUrl = userData.photoURL;
+            this.initialPhotoUrl = userData.photoURL;
           }
         } else {
           console.log("ユーザーデータが見つかりません");
@@ -208,6 +210,7 @@ export default {
     auth: null,
     photoUrl: "",
     newPhotoUrl: "",
+    initialPhotoUrl: "",
   }),
   computed: {
     isValid() {
@@ -227,8 +230,7 @@ export default {
         this.password !== "" ||
         this.confirmPassword !== "" ||
         this.featureEnabled !== this.initialFeatureEnabled ||
-        this.newPhotoUrl ||
-        this.photoUrl !== (this.auth?.photoURL || "")
+        this.photoUrl !== this.initialPhotoUrl
       ) {
         return false;
       }
@@ -260,6 +262,9 @@ export default {
           this.photoUrl = photoUrl;
         });
     },
+    resetPhoto() {
+      this.photoUrl = "";
+    },
     async saveChanges() {
       const user = firebase.auth().currentUser;
       const uid = user.uid;
@@ -283,7 +288,14 @@ export default {
 
       try {
         // アカウント画像の変更
-        if (this.newPhotoUrl) {
+        if (this.photoUrl === "") {
+          await user.updateProfile({ photoURL: null });
+          await firebase.firestore().collection("users").doc(uid).update({
+            photoURL: null,
+          });
+          auth.photoURL = null;
+          sessionStorage.setItem("user", JSON.stringify(auth));
+        } else if (this.newPhotoUrl) {
           await user.updateProfile({ photoURL: this.newPhotoUrl });
           await firebase.firestore().collection("users").doc(uid).update({
             photoURL: this.newPhotoUrl,
@@ -312,6 +324,7 @@ export default {
         this.initialUsername = this.username;
         this.initialEmail = this.email;
         this.initialFeatureEnabled = this.featureEnabled;
+        this.initialPhotoUrl = this.photoUrl;
 
         auth.photoURL = this.photoUrl;
         auth.displayName = this.username;
@@ -340,7 +353,12 @@ export default {
       this.confirmPassword = "";
       this.showPassword = false;
       this.featureEnabled = this.initialFeatureEnabled;
+      this.photoUrl = this.initialPhotoUrl;
       this.newPhotoUrl = "";
+
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = "";
+      }
     },
     clearMessage() {
       setTimeout(() => {
@@ -370,6 +388,7 @@ export default {
 
 .userIcon {
   cursor: pointer;
+  object-fit: cover;
 }
 
 .fade-enter-active,
