@@ -10,6 +10,14 @@
 
     <v-main>
       <v-container>
+        <v-overlay v-if="isUploading" opacity="0.8">
+          <v-progress-circular
+            indeterminate
+            size="64"
+            color="primary"
+          ></v-progress-circular>
+        </v-overlay>
+
         <v-card class="pa-4" outlined>
           <!-- アカウント画像の変更 -->
           <v-card-title>アカウント画像</v-card-title>
@@ -211,6 +219,7 @@ export default {
     photoUrl: "",
     newPhotoUrl: "",
     initialPhotoUrl: "",
+    isUploading: false,
   }),
   computed: {
     isValid() {
@@ -250,6 +259,7 @@ export default {
     updateIcon() {
       const file = this.$refs.fileInput.files[0];
       const filePath = `user/${file.name}`;
+      this.isUploading = true;
 
       firebase
         .storage()
@@ -260,12 +270,16 @@ export default {
           const photoUrl = await snapshot.ref.getDownloadURL();
           this.newPhotoUrl = photoUrl;
           this.photoUrl = photoUrl;
+        })
+        .finally(() => {
+          this.isUploading = false;
         });
     },
     resetPhoto() {
       this.photoUrl = "";
     },
     async saveChanges() {
+      this.isUploading = true;
       const user = firebase.auth().currentUser;
       const uid = user.uid;
       const auth = JSON.parse(sessionStorage.getItem("user"));
@@ -344,6 +358,8 @@ export default {
         this.errorMessage = "変更の保存に失敗しました";
         this.discardChanges();
         this.clearMessage();
+      } finally {
+        this.isUploading = false;
       }
     },
     discardChanges() {
