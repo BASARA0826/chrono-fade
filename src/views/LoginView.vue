@@ -88,8 +88,8 @@ export default {
         .signInWithEmailAndPassword(this.email, this.password)
         .then((result) => {
           const user = result.user;
-          console.log("success");
-          console.log("user", user);
+          // console.log("success");
+          // console.log("user", user);
 
           firebase
             .firestore()
