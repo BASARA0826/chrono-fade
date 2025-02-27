@@ -6,12 +6,18 @@
         <v-card-title class="login-title">SignUp</v-card-title>
         <v-card-subtitle>ユーザー情報を入力してください</v-card-subtitle>
         <v-btn text to="/" color="light-blue">ログインはこちら</v-btn>
-        <v-form ref="form" v-model="valid" lazy-validation>
+        <v-form
+          ref="form"
+          v-model="valid"
+          lazy-validation
+          @submit.prevent="submit"
+        >
           <v-text-field
             v-model="name"
             :rules="nameRules"
             label="UserName"
             required
+            @keyup.enter="submit"
           ></v-text-field>
 
           <v-text-field
@@ -19,6 +25,7 @@
             :rules="emailRules"
             label="E-mail"
             required
+            @keyup.enter="submit"
           ></v-text-field>
 
           <v-text-field
@@ -26,6 +33,7 @@
             type="password"
             label="Password"
             required
+            @keyup.enter="submit"
           ></v-text-field>
 
           <v-btn
