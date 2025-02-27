@@ -62,6 +62,7 @@
                   class="task-create-view-selectDate"
                   v-model="selectDate"
                   show-adjacent-months
+                  locale="ja"
                   :min="minDate"
                 ></v-date-picker>
                 <v-time-picker
