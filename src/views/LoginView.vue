@@ -6,12 +6,18 @@
         <v-card-title class="login-title">Login</v-card-title>
         <v-card-subtitle>ユーザー情報を入力してください</v-card-subtitle>
         <v-btn text to="signup" color="light-blue">新規登録はこちら</v-btn>
-        <v-form ref="form" v-model="valid" lazy-validation>
+        <v-form
+          ref="form"
+          v-model="valid"
+          lazy-validation
+          @submit.prevent="submit"
+        >
           <v-text-field
             v-model="email"
             :rules="emailRules"
             label="E-mail"
             required
+            @keyup.enter="submit"
           ></v-text-field>
 
           <v-text-field
@@ -19,6 +25,7 @@
             type="password"
             label="Password"
             required
+            @keyup.enter="submit"
           ></v-text-field>
 
           <v-btn
@@ -120,7 +127,6 @@ export default {
           this.errorMessage = "ログインに失敗しました。";
         });
     },
-
     clear() {
       this.email = "";
       this.password = "";
