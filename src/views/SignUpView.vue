@@ -82,9 +82,9 @@ export default {
         .auth()
         .createUserWithEmailAndPassword(this.email, this.password)
         .then(async (result) => {
-          console.log("success", result);
+          // console.log("success", result);
           await result.user.updateProfile({ displayName: this.name });
-          console.log("updateProfile", result.user);
+          // console.log("updateProfile", result.user);
 
           if (result.user) {
             const uid = result.user.uid;

@@ -354,7 +354,7 @@ export default {
         this.discardChanges();
         this.clearMessage();
       } catch (error) {
-        console.error("ユーザーデータの更新に失敗", error);
+        // console.error("ユーザーデータの更新に失敗", error);
         this.errorMessage = "変更の保存に失敗しました";
         this.discardChanges();
         this.clearMessage();
