@@ -10,7 +10,13 @@
     <v-main>
       <v-container>
         <v-row>
-          <v-col v-for="data in filteredTasks" :key="data.task_id" cols="4">
+          <v-col
+            v-for="data in filteredTasks"
+            :key="data.task_id"
+            cols="12"
+            sm="6"
+            md="4"
+          >
             <router-link
               :to="{
                 path: '/taskDetail',
