@@ -126,4 +126,17 @@ export default {
   height: 500px;
   margin: 30px 0;
 }
+@media (max-width: 768px) {
+  .BarGraph-container {
+    height: 300px;
+    margin: 15px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .BarGraph-container {
+    height: 250px;
+    margin: 10px 0;
+  }
+}
 </style>

@@ -149,12 +149,26 @@ export default {
 .login-box {
   margin: 0 auto;
   padding: 30px;
-  width: 900px !important;
+  /* width: 900px !important; */
+  max-width: 900px !important;
+  width: 100%;
 }
 
 .login-form {
-  margin: 150px;
+  margin: 100px auto;
   padding: 30px;
+  max-width: 500px;
+}
+@media screen and (max-width: 600px) {
+  .login-box {
+    padding: 20px;
+  }
+
+  .login-form {
+    margin: 50px auto;
+    padding: 20px;
+    max-width: 90%;
+  }
 }
 
 .login-title {

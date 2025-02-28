@@ -21,7 +21,13 @@
         <BarGraph />
 
         <v-row>
-          <v-col v-for="(data, index) in tasks" :key="index" cols="4">
+          <v-col
+            v-for="(data, index) in tasks"
+            :key="index"
+            cols="12"
+            sm="6"
+            md="4"
+          >
             <router-link
               :to="{
                 path: '/taskDetail',
