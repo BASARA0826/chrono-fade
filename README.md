@@ -28,8 +28,8 @@ npm run lint
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-### nkgrok
+### ngrok
 
 ```
-http --host-header=rewrite 8080 --response-header-add Content-Security-Policy:upgrade-insecure-requests
+ngrok http --host-header=rewrite 8080 --response-header-add Content-Security-Policy:upgrade-insecure-requests
 ```
