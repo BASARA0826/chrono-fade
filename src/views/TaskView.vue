@@ -1,7 +1,14 @@
 <template>
   <v-app id="inspire">
-    <Sidebar />
+    <Sidebar v-model="drawer" />
     <v-app-bar app hide-on-scroll prominent>
+      <v-app-bar-nav-icon @click="toggleSidebar" v-if="!drawer">
+        <v-icon>mdi-menu</v-icon>
+      </v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="toggleSidebar" v-else>
+        <v-icon>mdi-close</v-icon>
+      </v-app-bar-nav-icon>
+
       <v-toolbar-title class="siteTitle">{{ fadedTitle }}</v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -74,6 +81,7 @@ export default {
   data: () => ({
     tasks: [],
     siteTitle: "ChronoFade",
+    drawer: false,
   }),
   computed: {
     filteredTasks() {
@@ -89,6 +97,11 @@ export default {
           return char;
         })
         .join("");
+    },
+  },
+  methods: {
+    toggleSidebar() {
+      this.drawer = !this.drawer;
     },
   },
 };

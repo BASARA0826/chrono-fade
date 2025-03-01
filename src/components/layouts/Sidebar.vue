@@ -42,6 +42,19 @@
 import firebase from "@/firebase/firebase";
 
 export default {
+  props: {
+    value: Boolean,
+  },
+  computed: {
+    drawer: {
+      get() {
+        return this.value;
+      },
+      set(val) {
+        this.$emit("input", val);
+      },
+    },
+  },
   mounted() {
     this.updateAuth();
     window.addEventListener("storage", this.updateAuth);
@@ -50,7 +63,6 @@ export default {
     window.removeEventListener("storage", this.updateAuth);
   },
   data: () => ({
-    drawer: null,
     links: [
       ["mdi-home", "タスク一覧", "/task"],
       ["mdi-list-box-outline", "完了タスク一覧", "/taskComp"],
