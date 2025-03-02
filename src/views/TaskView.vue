@@ -10,7 +10,6 @@
       </v-app-bar-nav-icon>
 
       <v-toolbar-title class="siteTitle">{{ fadedTitle }}</v-toolbar-title>
-
       <v-spacer></v-spacer>
     </v-app-bar>
 
@@ -114,6 +113,7 @@ export default {
   font-style: normal;
   font-size: 80px !important;
   width: 100%;
+  padding-left: 0 !important;
 }
 
 /* タスクタイトル */
