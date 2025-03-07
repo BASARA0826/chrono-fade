@@ -41,10 +41,18 @@
             class="login-btn"
             @click="submit"
             :disabled="isValid"
-            >SIGN UP</v-btn
           >
+            <v-progress-circular
+              v-if="loading"
+              indeterminate
+              color="white"
+              size="24"
+              class="login-progress"
+            ></v-progress-circular>
+            <span v-else>SIGN UP</span>
+          </v-btn>
 
-          <v-btn @click="clear">CLEAR</v-btn>
+          <v-btn @click="clear" class="login-clear">CLEAR</v-btn>
           <v-alert
             dense
             outlined
@@ -56,6 +64,8 @@
           </v-alert>
         </v-form>
       </v-card>
+
+      <div v-if="loading" class="loading-overlay"></div>
     </div>
   </v-app>
 </template>
@@ -78,6 +88,7 @@ export default {
     ],
     password: "",
     errorMessage: "",
+    loading: false,
   }),
   computed: {
     isValid() {
@@ -86,6 +97,8 @@ export default {
   },
   methods: {
     submit() {
+      this.loading = true;
+
       firebase
         .auth()
         .createUserWithEmailAndPassword(this.email, this.password)
@@ -116,6 +129,9 @@ export default {
         .catch((error) => {
           console.log("error", error);
           this.errorMessage = "ユーザーの新規登録に失敗しました。";
+        })
+        .finally(() => {
+          this.loading = false;
         });
     },
 
