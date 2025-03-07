@@ -33,10 +33,18 @@
             class="login-btn"
             @click="submit"
             :disabled="isValid"
-            >LOGIN</v-btn
           >
+            <v-progress-circular
+              v-if="loading"
+              indeterminate
+              color="white"
+              size="24"
+              class="login-progress"
+            ></v-progress-circular>
+            <span v-else>LOGIN</span>
+          </v-btn>
 
-          <v-btn @click="clear">CLEAR</v-btn>
+          <v-btn @click="clear" class="login-clear">CLEAR</v-btn>
           <v-alert
             dense
             text
@@ -58,6 +66,8 @@
           </v-alert>
         </v-form>
       </v-card>
+
+      <div v-if="loading" class="loading-overlay"></div>
     </div>
   </v-app>
 </template>
@@ -76,6 +86,7 @@ export default {
     password: "",
     message: "",
     errorMessage: "",
+    loading: false,
   }),
   mounted() {
     if (localStorage.message) {
@@ -90,6 +101,8 @@ export default {
   },
   methods: {
     submit() {
+      this.loading = true;
+
       firebase
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
@@ -125,6 +138,9 @@ export default {
         .catch((error) => {
           console.log("fail", error);
           this.errorMessage = "ログインに失敗しました。";
+        })
+        .finally(() => {
+          this.loading = false;
         });
     },
     clear() {
@@ -136,6 +152,17 @@ export default {
 </script>
 
 <style>
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0);
+  z-index: 9999;
+  pointer-events: all;
+}
+
 .login-signup-sitetitle {
   display: inline-block;
   font-family: "Caveat", cursive;
@@ -176,7 +203,12 @@ export default {
 }
 
 .login-btn {
+  width: 85px !important;
   margin-right: 20px;
+}
+
+.login-clear {
+  width: 85px !important;
 }
 
 .success-message {
