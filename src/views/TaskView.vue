@@ -41,6 +41,9 @@
           </v-col>
         </v-row>
       </v-container>
+      <h1 id="NoTaskTitle" v-if="filteredTasks.length === 0">
+        ※現在タスクはありません※
+      </h1>
     </v-main>
   </v-app>
 </template>
@@ -150,5 +153,25 @@ export default {
 }
 .v-card-subtitle {
   text-decoration: none !important;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#NoTaskTitle {
+  text-align: center;
+  font-size: 24px;
+  color: grey;
+  margin-top: 50px;
+  opacity: 0;
+  animation: fadeIn 1.5s ease forwards;
 }
 </style>
